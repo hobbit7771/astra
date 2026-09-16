@@ -1,20 +1,26 @@
-"""Entry point for WSGI-style process managers that hardcode `app:app`
-(this is exactly what Render's Python auto-detect assumed when this
-service was first created: `gunicorn app:app`).
+"""Entry point for process managers that hardcode `app:app`.
 
-The real application is the T3 Elliott Wave dashboard - a FastAPI (ASGI)
-app at t3_engine/dashboard/server.py. This file just re-exports it under
-the name `app` so `gunicorn app:app` resolves to something real instead of
-crashing on import. gunicorn.conf.py (repo root) tells gunicorn to run it
-through an ASGI-capable worker (Uvicorn's), since a bare ASGI app cannot
-be served by gunicorn's default sync WSGI workers.
+Render auto-detected this service's Start Command as `gunicorn app:app`
+when the Astra service was created, and a saved Start Command does not
+change itself when `Procfile` or `render.yaml` changes. So `app:app` has
+to resolve to Astra - otherwise the deployed site is not Astra at all.
 
-This file used to be a separate Flask prototype (single-timeframe REST
-analysis + matplotlib chart) that imported binance_connector.py,
-elliott_wave_analyzer.py, fibonacci_calculator.py, visualizer.py - none of
-which exist in this repository, so it never actually ran. That version is
-still recoverable from git history (see commits before the T3 engine work)
-if anyone wants to resurrect it; it wasn't functional code being removed.
+That is precisely what went wrong on the first deploy of this repository:
+this file used to re-export the legacy T3 Elliott Wave dashboard
+(`t3_engine/dashboard/server.py`), the application this repository exists
+in order NOT to run. `gunicorn app:app` therefore served the old
+Analysis/AI dashboard on the Astra URL, with the Lead Engine reduced to
+one tab inside it reporting ENGINE OFF.
+
+Every entry point here now names the same application: `Procfile`,
+`render.yaml`, and this file all start `astra_app:app`. `gunicorn.conf.py`
+(loaded automatically from the repo root) runs it under Uvicorn's ASGI
+worker, because a bare ASGI app cannot be served by gunicorn's default
+sync WSGI workers, and that worker also runs the lifespan hook that
+starts the engine.
+
+The legacy dashboard module stays importable - its tests still cover it -
+it is simply not what any deployment of this repository starts.
 """
 
-from t3_engine.dashboard.server import app  # noqa: F401
+from astra_app import app  # noqa: F401
