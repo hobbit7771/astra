@@ -1,0 +1,1859 @@
+{
+  "mode": "live",
+  "requested_seconds": 1800,
+  "acceptance_passed": false,
+  "blocked_reason": "No live Bybit frames received; opening connection unavailable",
+  "last_status": {
+    "elapsed": 20.014,
+    "stream": {
+      "connected": false,
+      "connects": 0,
+      "reconnects": 0,
+      "messages": 0,
+      "dropped": 0,
+      "resyncs": 0,
+      "last_message_at": 0.0,
+      "last_error": "TimeoutError: timed out during opening handshake",
+      "subscribed_topics": 0,
+      "network_latency_ms": 0.0,
+      "queue_latency_ms": 0.0,
+      "queue_depth": 0,
+      "queue_peak": 0,
+      "queue_limit": 2048,
+      "messages_per_second": 0.0,
+      "latency_ms": 0.0
+    },
+    "symbols": [
+      {
+        "symbol": "BTCUSDT",
+        "price": 0.0,
+        "state": "DATA_FAILURE",
+        "direction": "",
+        "long_pressure": 0.0,
+        "short_pressure": 0.0,
+        "health": "DEGRADED",
+        "signals_enabled": false
+      },
+      {
+        "symbol": "INJUSDT",
+        "price": 0.0,
+        "state": "DATA_FAILURE",
+        "direction": "",
+        "long_pressure": 0.0,
+        "short_pressure": 0.0,
+        "health": "DEGRADED",
+        "signals_enabled": false
+      }
+    ]
+  },
+  "samples": [
+    {
+      "elapsed": 0.003,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 0.503,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 1.003,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 1.504,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 2.004,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 2.504,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 3.004,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 3.504,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 4.005,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 4.505,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 5.005,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 5.505,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 6.006,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 6.506,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 7.006,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 7.506,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 8.007,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 8.507,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 9.007,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 9.507,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 10.008,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 10.508,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 11.009,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 11.509,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 12.009,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 12.509,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 13.01,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 13.511,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 14.012,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 14.512,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 15.012,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 15.513,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 16.013,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 16.513,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 17.013,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 17.514,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 18.014,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 18.514,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 19.014,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 19.514,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    },
+    {
+      "elapsed": 20.014,
+      "stream": {
+        "connected": false,
+        "connects": 0,
+        "reconnects": 0,
+        "messages": 0,
+        "dropped": 0,
+        "resyncs": 0,
+        "last_message_at": 0.0,
+        "last_error": "TimeoutError: timed out during opening handshake",
+        "subscribed_topics": 0,
+        "network_latency_ms": 0.0,
+        "queue_latency_ms": 0.0,
+        "queue_depth": 0,
+        "queue_peak": 0,
+        "queue_limit": 2048,
+        "messages_per_second": 0.0,
+        "latency_ms": 0.0
+      },
+      "symbols": [
+        {
+          "symbol": "BTCUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        },
+        {
+          "symbol": "INJUSDT",
+          "price": 0.0,
+          "state": "DATA_FAILURE",
+          "direction": "",
+          "long_pressure": 0.0,
+          "short_pressure": 0.0,
+          "health": "DEGRADED",
+          "signals_enabled": false
+        }
+      ]
+    }
+  ],
+  "wall_seconds": 20.017,
+  "peak_rss_kib": 29624,
+  "rss_samples_kib": [
+    23096,
+    27960,
+    27960,
+    27960,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    28088,
+    29112,
+    29496,
+    29496,
+    29496,
+    29496,
+    29496,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624,
+    29624
+  ]
+}

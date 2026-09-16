@@ -1,0 +1,22 @@
+# Astra standalone Market Lead Engine. Does not start the legacy dashboard.
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: astra-market-lead-engine
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt
+    healthCheckPath: /api/health
+    startCommand: uvicorn astra_app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ASTRA_PAPER_DB
+        value: /opt/render/project/src/astra-data/paper.sqlite3
+      - key: LEAD_ENGINE_ENABLED
+        value: "true"
+      - key: PYTHON_VERSION
+        value: 3.11.6
+    # Free-tier local storage is ephemeral. Export the paper journal before
+    # redeploying. Durable operation requires a paid persistent disk with
+    # ASTRA_PAPER_DB pointing to that mount; legacy T3_DATABASE_URL does not
+    # configure the independent Astra paper ledger.

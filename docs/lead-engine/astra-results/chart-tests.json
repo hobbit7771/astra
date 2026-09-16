@@ -1,0 +1,1 @@
+{"result":"PASS","ema_periods":[9,18,50,200],"ema_tolerance":1e-10,"fib_directions":2,"live_candle_updates":20,"history_requests":1,"max_pending_panel_frames":1,"signal_timestamp":1700074803,"visual_browser_test":false}

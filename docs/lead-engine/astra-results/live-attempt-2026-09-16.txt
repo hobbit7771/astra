@@ -1,0 +1,38 @@
+lead_engine stream: TimeoutError: timed out during opening handshake
+Exception in callback _SelectorSocketTransport._call_connection_lost(None)
+handle: <Handle _SelectorSocketTransport._call_connection_lost(None)>
+Traceback (most recent call last):
+  File "/workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/websockets/http11.py", line 282, in parse
+    status_line = yield from parse_line(read_line, StatusLineTooLong)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/websockets/http11.py", line 365, in parse_line
+    line = yield from read_line(MAX_LINE_LENGTH, too_long_exc_type)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/websockets/streams.py", line 54, in read_line
+    raise EOFError(f"stream ends after {p} bytes, before end of line")
+EOFError: stream ends after 0 bytes, before end of line
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/websockets/asyncio/client.py", line 738, in run_parser
+    next(self.parser)
+  File "/workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/websockets/http11.py", line 284, in parse
+    raise EOFError("connection closed while reading HTTP status line") from exc
+EOFError: connection closed while reading HTTP status line
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/events.py", line 88, in _run
+    self._context.run(self._callback, *self._args)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py", line 1193, in _call_connection_lost
+    super()._call_connection_lost(exc)
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/asyncio/selector_events.py", line 911, in _call_connection_lost
+    self._protocol.connection_lost(exc)
+  File "/workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/websockets/asyncio/client.py", line 769, in connection_lost
+    self.run_parser()
+  File "/workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/websockets/asyncio/client.py", line 750, in run_parser
+    self.response.set_exception(proxy_exc)
+asyncio.exceptions.InvalidStateError: invalid state
+{"mode": "live", "requested_seconds": 1800, "acceptance_passed": false, "blocked_reason": "No live Bybit frames received; opening connection unavailable", "wall_seconds": 20.017, "peak_rss_kib": 29624}

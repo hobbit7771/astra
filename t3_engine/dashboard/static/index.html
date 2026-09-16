@@ -1,0 +1,2803 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0e1117" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="T3 Engine" />
+<link rel="manifest" href="/static/manifest.json" />
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png" />
+<link rel="icon" href="/static/icons/icon-192.png" />
+<title>T3 - Elliott Wave Trading Engine</title>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: -apple-system, Segoe UI, Roboto, sans-serif; background:#0e1117; color:#d7dbe0;
+         -webkit-tap-highlight-color: transparent; }
+  header { padding: 10px 12px; border-bottom: 1px solid #232733; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size: 14px; margin:0; font-weight:600; color:#f2f4f8; white-space:nowrap; }
+  header label { font-size: 12px; color:#9aa3b2; display:flex; align-items:center; gap:4px; }
+  header select, header input, header button, .panel-btn {
+    background:#1b2028; color:#e6e9ef; border:1px solid #2c3140; border-radius:6px; padding:6px 9px; font-size:12px;
+  }
+  header button, .panel-btn { cursor:pointer; min-height:30px; }
+  header button:active, .panel-btn:active { background:#232a36; }
+  #tabs { display:flex; gap:6px; padding: 0 12px 8px; border-bottom:1px solid #232733; }
+  #tabs button { background:none; border:none; color:#8891a3; font-size:12px; padding:6px 10px; border-radius:6px; cursor:pointer; }
+  #tabs button.active { background:#1b2028; color:#f2f4f8; }
+  #layout { display:flex; height: calc(100vh - 96px); }
+  #chart, #analystChart { flex: 1 1 auto; min-width:0; }
+  /* The analyst's own chart. Same box as the main one, but it never
+     receives an engine overlay - see drawAnalystCount(). */
+  #analystChart { display:none; }
+  .step { display:flex; gap:6px; font-size:11px; color:#9aa3b2; padding:4px 0; border-bottom:1px solid #1b1f29;
+          align-items:baseline; flex-wrap:wrap; }
+  .step .n { color:#5b6478; flex:0 0 16px; }
+  .step .t { color:#c084fc; flex:1 1 160px; min-width:0; word-break:break-word; }
+  .step .t .a { color:#7b8397; }
+  .step .r { flex:1 1 120px; text-align:right; color:#c7cbd3; }
+  .step .r.bad { color:#fca5a5; }
+  /* The running job's own log. Capped in height and scrolled to the
+     bottom: a twelve-minute run produces a lot of lines, and the one that
+     matters is always the last. */
+  .joblog { max-height:190px; overflow-y:auto; font-size:11px; line-height:1.5;
+            background:#0b0e14; border:1px solid #1b1f29; border-radius:8px; padding:7px 8px; }
+  .joblog div { color:#9aa3b2; padding:1px 0; word-break:break-word; }
+  .joblog div:last-child { color:#c7cbd3; }
+  /* A run that finished while you were on another tab has to say so
+     somewhere. Without this a resumed analysis completes into a hidden
+     panel and reads as "nothing happened". */
+  #tabs button.has-news::after { content:'●'; color:#4ade80; margin-left:5px; font-size:9px;
+                                 vertical-align:middle; }
+  .turn { border:1px solid #232733; border-radius:8px; padding:7px 8px; margin-bottom:6px; font-size:11.5px; }
+  .turn .who { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#8891a3; margin-bottom:3px; }
+  .turn.model { border-color:#3b3159; }
+  .turn.model .who { color:#c084fc; }
+  .turn.tool { border-color:#1f3a4a; }
+  .turn.tool .who { color:#60a5fa; }
+  .turn.deadline { border-color:#5a4a1f; }
+  .turn.deadline .who { color:#facc15; }
+  .turn .body { white-space:pre-wrap; line-height:1.4; color:#d7dbe0; word-break:break-word; }
+  .turn .think { white-space:pre-wrap; line-height:1.35; color:#8891a3; font-style:italic;
+                 border-left:2px solid #2c3140; padding-left:7px; margin-top:5px; }
+  .turn .meta { color:#7b8397; font-size:10.5px; margin-top:4px; }
+  #panel { width: 340px; flex-shrink:0; border-left:1px solid #232733; padding:12px; overflow-y:auto; font-size:12.5px; }
+  #panel h2 { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#8891a3; margin:14px 0 6px; }
+  #panel h2:first-child { margin-top:0; }
+  .row { display:flex; justify-content:space-between; padding:2px 0; gap:8px; }
+  .row .k { color:#9aa3b2; }
+  .row .v { color:#e6e9ef; font-weight:500; text-align:right; }
+  .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:600; }
+  .pill.up { background:#123a2c; color:#4ade80; }
+  .pill.down { background:#3a1414; color:#f87171; }
+  .signal { border:1px solid #232733; border-radius:8px; padding:8px; margin-bottom:8px; }
+  .signal.accepted { border-color:#22543d; }
+  .signal.rejected { border-color:#4a1f24; opacity:.75; }
+  .note { background:#1b2028; border:1px solid #2c3140; border-radius:8px; padding:8px; font-size:11.5px; color:#9aa3b2; margin-bottom:10px; }
+  .note.error { border-color:#7f1d1d; color:#fca5a5; background:#2a1414; }
+  table { width:100%; border-collapse: collapse; font-size:11.5px; }
+  td, th { padding:3px 4px; border-bottom:1px solid #232733; text-align:right; }
+  th:first-child, td:first-child { text-align:left; }
+  .field-row { display:flex; gap:6px; margin-bottom:8px; }
+  .field-row input { flex:1; min-width:0; }
+  #ai-answer { white-space:pre-wrap; line-height:1.4; }
+  .hint { font-size:11px; color:#6b7383; margin-top:4px; }
+
+  /* Mobile layout: stack the analysis panel below the chart instead of
+     beside it, and give the chart enough height to still be usable. */
+  @media (max-width: 820px) {
+    #layout { flex-direction: column; height: auto; }
+    #chart, #analystChart { height: 46vh; }
+    #panel { width: 100%; border-left:none; border-top:1px solid #232733; max-height: 54vh; }
+    header { padding: 8px; }
+    header h1 { flex-basis: 100%; }
+  }
+</style>
+  <link rel="stylesheet" href="/static/lead_engine.css">
+</head>
+<body>
+<header>
+  <h1>T3 &mdash; Elliott Wave Engine
+    <span id="buildBadge" style="background:#facc15;color:#000;font-size:11px;font-weight:800;
+      padding:2px 7px;border-radius:5px;margin-left:8px;vertical-align:middle;">{{BUILD_VERSION}}</span>
+  </h1>
+  <label>Source
+    <select id="source">
+      <option value="synthetic">Synthetic demo</option>
+      <option value="bybit">Bybit (history)</option>
+      <option value="live">Bybit (live, public WS)</option>
+    </select>
+  </label>
+  <span id="symbolField" style="position:relative;display:inline-flex;align-items:center;gap:4px;">
+    <label for="symbol">Symbol</label>
+    <input id="symbol" value="SYNTHETIC-DEMO" size="12" autocomplete="off" />
+    <!-- Deliberately a SIBLING of the <label>, not nested inside it: a
+         <label> forwards any click within its whole subtree to its
+         associated input (focusing it), so a suggestion box nested inside
+         one would re-focus #symbol immediately after a click - and the
+         focus handler below would then reopen the very dropdown that
+         click just picked from. Verified with a headless-browser check,
+         not just reasoning about it: clicking a suggestion left the
+         dropdown open until this was moved out from under the label. -->
+    <div id="symbolSuggestions" style="display:none;position:absolute;top:100%;left:0;z-index:50;
+      background:#1b2028;border:1px solid #2c3140;border-radius:6px;max-height:240px;overflow-y:auto;
+      min-width:180px;box-shadow:0 8px 20px rgba(0,0,0,.5);"></div>
+  </span>
+  <label id="cyclesField">Cycles <input id="cycles" type="number" value="2" min="1" max="10" size="3" /></label>
+  <label>Threshold <input id="threshold" type="number" value="60" min="0" max="100" size="3" /></label>
+  <label title="Starting paper-trading balance. Risk-per-trade is a % of equity, so this scales position sizing/PnL proportionally - it does not change how the strategy behaves.">Equity
+    <input id="equity" type="number" value="10000" min="1" max="1000000000" step="1000" size="8" />
+  </label>
+  <label id="limitField" style="display:none;" title="How many historical candles to fetch. Bybit caps a single request at 1000, so anything above that is fetched as multiple paginated requests.">Candles
+    <input id="limit" type="number" value="1500" min="100" max="10000" step="100" size="6" />
+  </label>
+  <label id="tfField" style="display:none;">TF
+    <select id="timeframe">
+      <option value="1m">1m</option>
+      <option value="5m" selected>5m</option>
+      <option value="15m">15m</option>
+      <option value="1h">1h</option>
+      <option value="4h">4h</option>
+    </select>
+  </label>
+  <button id="run">Run</button>
+  <button id="liveStart" style="display:none;">Start live</button>
+  <button id="liveStop" style="display:none;">Stop live</button>
+  <button id="fitChart" title="Reset chart zoom/pan to fit all loaded candles">Fit</button>
+  <span id="status" style="color:#8891a3;font-size:12px;"></span>
+</header>
+<div id="tabs">
+  <button data-tab="analysis" class="active">Analysis</button>
+  <button data-tab="ai">AI Advisor</button>
+  <button data-tab="analyst">AI Analyst</button>
+  <button data-tab="mtf">Multi-TF</button>
+  <button data-tab="claude">Claude</button>
+  <button data-tab="lead">Lead Engine</button>
+</div>
+<div id="layout">
+  <div id="chart"></div>
+  <div id="analystChart"></div>
+  <div id="panel">
+    <div id="tab-analysis">
+      <div class="note" id="note" style="display:none;"></div>
+      <h2>Debug State</h2>
+      <div id="debug"></div>
+      <h2>Primary Scenario</h2>
+      <div id="primary"></div>
+      <h2>Signals</h2>
+      <div id="signals"></div>
+      <h2>Closed Trades &amp; Metrics</h2>
+      <div id="metrics"></div>
+    </div>
+    <div id="tab-ai" style="display:none;">
+      <div class="note">
+        Runs on <strong>OpenRouter</strong> (<code>openrouter.ai/api/v1</code>),
+        <code>~openai/gpt-astra-latest</code> by default. If the server has a key configured you can leave the
+        field below empty; otherwise paste your own — it is sent to your own backend for one request at
+        a time and never stored server-side (see <code>ai_advisor/advisor.py</code>). The model can give
+        a second opinion and propose a wave count; it can never override the rule-based engine's
+        accept/reject decision.
+      </div>
+      <h2>API key</h2>
+      <div class="field-row">
+        <input id="aiKey" type="password" placeholder="sk-or-v1-… (optional if the server has one)" />
+        <button class="panel-btn" id="saveKey">Save</button>
+      </div>
+      <div class="hint" id="serverKeyHint">Saved only in this browser (localStorage), never sent anywhere except your own backend.</div>
+
+      <h2>Model</h2>
+      <div class="field-row">
+        <input id="aiModel" type="text" placeholder="~openai/gpt-astra-latest" />
+      </div>
+      <div class="hint">
+        One id, or <strong>several separated by commas</strong> — the router walks the list and uses
+        the first that answers. Worth doing: a free model behind a shared GPU pool returns
+        <em>"service temporarily overloaded"</em> a good fraction of the time, and a list turns that
+        into a non-event instead of a failed run. Format <code>vendor/model</code>, optionally with a
+        <code>:free</code> suffix. Editable because catalogues change; if a call comes
+        back <code>404</code> the id no longer resolves — paste the current one here, no redeploy
+        needed. The AI Analyst needs a model that supports <em>tool calling</em>; one that doesn't will
+        answer in prose and submit nothing.
+      </div>
+
+      <h2>API base URL</h2>
+      <div class="field-row">
+        <input id="aiBaseUrl" type="text" placeholder="https://openrouter.ai/api/v1" />
+      </div>
+      <div class="hint">
+        This build cannot reach the host to confirm it, so it stays editable: if every call returns <code>404</code> no matter which model you pick, the path
+        is wrong. Pasting the full endpoint works too; it won't be doubled up.
+      </div>
+
+      <h2>Timeout</h2>
+      <div class="field-row">
+        <input id="aiTimeout" type="number" value="180" min="10" max="600" step="10" />
+      </div>
+      <div class="hint">
+        Seconds to wait for <em>one</em> answer. Free router models queue behind other traffic and
+        reasoning models think before emitting a first token, so a slow reply is normal — a read
+        timeout means the connection worked and the model was still busy, which is a different
+        problem from a wrong URL.
+      </div>
+
+      <h2>Reasoning effort</h2>
+      <div class="field-row">
+        <select id="aiEffort" style="flex:1;">
+          <option value="max">max (default — full power)</option>
+          <option value="high">high</option>
+          <option value="medium">medium</option>
+          <option value="low">low</option>
+          <option value="">Not sent (model default)</option>
+        </select>
+      </div>
+      <div class="hint">
+        <code>max</code> is the default now: the best answer the model can give, and by far the
+        slowest. The analyst makes one call per step, so the cost multiplies — and since a run is a
+        background job you can close the tab on, the slowness is no longer a reason to hold back.
+        Drop to <code>medium</code> if you want a quick look, or pick
+        <strong>Not sent</strong> if you point the endpoint at a model that has never heard of this
+        parameter: such a model answers <code>400</code> rather than ignoring it.
+      </div>
+
+      <h2>Model thinking</h2>
+      <div class="field-row">
+        <select id="aiThinking" style="flex:1;">
+          <option value="on" selected>On — better counts (recommended)</option>
+          <option value="off">Off — faster and cheaper</option>
+          <option value="">Do not send the field</option>
+        </select>
+      </div>
+      <div class="hint">
+        Sent as OpenRouter's own <code>reasoning: {enabled, effort}</code>. <strong>On by default now
+        that the model is paid</strong> — it was off while the free models sat behind a shared GPU pool,
+        where thinking meant minutes before the first byte; on a paid model thinking is the reason to
+        use it, and an Elliott count is exactly the kind of work it helps. The model's reasoning is
+        also <em>carried across steps</em> (<code>reasoning_details</code> passed back unmodified), so
+        the agent picks up where it left off instead of re-thinking from scratch on every step.
+        "Do not send" is for a model that has never heard of the field and answers <code>400</code>
+        rather than ignoring it.
+      </div>
+
+      <h2>Check the connection</h2>
+      <div class="field-row">
+        <button class="panel-btn" id="pingAi" style="flex:1;">Test key, URL and model</button>
+        <button class="panel-btn" id="diagnoseAi" style="flex:1;">Diagnose</button>
+      </div>
+      <div class="field-row">
+        <button class="panel-btn" id="fillModels" style="flex:1;">Fill Model field with working models</button>
+      </div>
+      <div class="hint" style="margin-bottom:6px;">
+        <strong>Diagnose</strong> first lists the catalogue (<code>GET /models</code>) — that needs the
+        key and the same URL but runs <em>no model at all</em>. If it answers, the key, endpoint and
+        network are fine by construction and any slowness belongs to the model or its queue. Then it
+        looks at the chat endpoint raw: status, headers, whether the body is really a stream, and the
+        timing of each phase.
+      </div>
+      <div id="diagnoseOut" style="display:none;"></div>
+      <div class="hint" id="pingStatus">
+        One tiny request. A wrong key, a wrong URL, a dead model id and a model that just queues all
+        look the same from here — this tells them apart before you wait on a long run.
+      </div>
+
+      <h2>Ask the model about the current setup</h2>
+      <button class="panel-btn" id="askAi">Ask for a second opinion</button>
+      <div class="hint" id="aiStatus"></div>
+      <div class="signal" id="ai-answer" style="margin-top:10px; display:none;"></div>
+
+      <h2>Signal quality (kumo-relational)</h2>
+      <div class="note">
+        A different <em>kind</em> of model: it takes a relational table and returns a probability per
+        row, with no text output and no tool calling — so it cannot label waves or replace the chat
+        model. What it can answer is the one question the engine already has the table for: given how
+        a setup scored on its eight components, how often did setups like it actually end green?
+        <strong>Strictly advisory</strong> — it never gates a trade, moves a stop or edits a count. A
+        model fitted to a few dozen of the engine's own past trades is a hint, not an edge.
+      </div>
+      <button class="panel-btn" id="askSignalQuality">Score the open signals</button>
+      <div class="hint" id="signalQualityStatus"></div>
+      <div class="signal" id="signal-quality-answer" style="margin-top:10px; display:none;"></div>
+
+      <h2>AI wave labelling</h2>
+      <div class="note">
+        The model proposes a count across the whole loaded history — the one thing the deterministic engine
+        deliberately won't do, since it only anchors on recent pivots. The model only ever names
+        <em>pivot indices</em>; the server recomputes those pivots itself and re-checks existence, order,
+        contiguity, alternation, causality and the hard Elliott rules before anything is drawn. A
+        mathematically impossible wave comes back rejected, with the rule it broke.
+      </div>
+      <button class="panel-btn" id="askAiLabel">Propose a count for this history</button>
+      <div class="hint" id="aiLabelStatus"></div>
+      <div class="signal" id="ai-label-answer" style="margin-top:10px; display:none;"></div>
+    </div>
+    <div id="tab-analyst" style="display:none;">
+      <div class="note">
+        A clean chart and an agent, nothing else. This tab loads the candles and hands the model
+        <em>no</em> markup — no pivots, no BOS/CHoCH, no scenarios, no Fibonacci — then lets it work
+        the chart with real tools: list the swings at any degree, measure legs, compute Fibonacci
+        levels, and <strong>test a count against this server's rule engine before committing to it</strong>.
+        It is told the Elliott rulebook (hard rules vs. guidelines, impulses, diagonals, zigzags,
+        flats, triangles, combinations) and asked to work top-down, oldest structure first.
+      </div>
+      <div class="note">
+        Separate chart on purpose: a model shown an existing markup tends to agree with it. Here the
+        two counts stay comparable instead of superimposed. Every structure it submits is still
+        re-validated server-side — anything that breaks a hard rule is listed below as rejected,
+        never drawn.
+      </div>
+      <h2>Run the analyst</h2>
+      <div class="field-row">
+        <label style="font-size:11px;color:#9aa3b2;display:flex;align-items:center;gap:6px;flex:1;">Step budget
+          <input id="analystSteps" type="number" value="24" min="1" max="40" style="width:60px;" />
+        </label>
+        <button class="panel-btn" id="runAnalyst">Label from scratch</button>
+      </div>
+      <div class="hint">
+        One model call per step. Measured over nine saved runs of the same charts:
+        at <strong>10 steps</strong> coverage averaged 84% and one chart came back only 41% labelled;
+        at <strong>15–16</strong> it averaged 97.5% with the worst case 95%, and the number of
+        validated structures roughly <strong>doubled</strong> (4.4 → 10.3 per chart).
+        Every 15–16 step run also spent its entire budget, so the ceiling — not the chart — was
+        still what stopped it. Default is <strong>24</strong> for that reason. A run is a background
+        job you can close the tab on, so the only thing a long budget costs is tokens, and the
+        panel reports exactly how many.
+      </div>
+      <div class="hint" id="analystStatus">Uses the Source / Symbol / TF / Candles pickers in the header.</div>
+      <div id="analystProgressWrap" style="display:none;">
+        <h2>Live progress</h2>
+        <div id="analystProgress" class="joblog"></div>
+      </div>
+
+      <div id="analystSavedWrap" style="display:none;">
+        <h2>Saved counts</h2>
+        <div class="hint" style="margin-bottom:6px;">
+          Every timeframe that has ever been analysed for this instrument, newest work included —
+          a multi-timeframe pass adds four at once. Click one to draw it. Nothing here is
+          recomputed or re-paid for; a new run <strong>adds</strong> to this list rather than
+          replacing it.
+        </div>
+        <div id="analystSaved"></div>
+      </div>
+      <div id="analystSummary" style="display:none;">
+        <h2>Read</h2>
+        <div class="signal" id="analystRead"></div>
+      </div>
+      <div id="analystStructuresWrap" style="display:none;">
+        <h2>Structures</h2>
+        <div id="analystStructures"></div>
+      </div>
+      <div id="analystStepsWrap" style="display:none;">
+        <h2>What it actually did</h2>
+        <div id="analystSteps"></div>
+      </div>
+      <div id="analystChatWrap" style="display:none;">
+        <h2>Conversation</h2>
+        <div class="hint" style="margin-bottom:6px;">
+          Everything the model said, thought and called, in order — so "why did it stop at step N"
+          has an answer instead of a guess. Thinking is shown where the model streams it separately.
+        </div>
+        <div id="analystChat"></div>
+      </div>
+    </div>
+    <div id="tab-claude" style="display:none;">
+      <div class="note">
+        A <strong>full count of the whole history</strong>, every timeframe, made by the rule engine
+        rather than by a model — so it costs nothing to run and nothing to re-run. <strong>Build</strong>
+        pulls 1500 bars each of 5m, 15m, 1h and 4h from Bybit, files them so they survive a deploy,
+        then searches every structure that could start at every swing and keeps only the ones the hard
+        rules accept. Waves 1, 3 and 5 are then subdivided into their own i–ii–iii–iv–v at a finer
+        deviation, by the same rules. The forecast below is the Fibonacci projection of the wave now
+        forming, with the share of THIS chart's own past swings that reached that far.
+      </div>
+      <div class="field-row">
+        <label style="font-size:11px;color:#9aa3b2;display:flex;align-items:center;gap:6px;flex:1;">Symbol
+          <input id="claudeSymbol" type="text" value="INJUSDT" style="flex:1;min-width:0;" />
+        </label>
+        <label style="font-size:11px;color:#9aa3b2;display:flex;align-items:center;gap:6px;">Bars
+          <input id="claudeLimit" type="number" value="1500" min="200" max="5000" step="100"
+                 style="width:70px;" />
+        </label>
+        <button id="claudeBuild" class="panel-btn">Build</button>
+      </div>
+      <div class="field-row" id="claudeTfRow"></div>
+      <div class="hint" id="claudeStatus">Press Build to fetch and count every timeframe.</div>
+      <div id="claudeLog" class="joblog" style="display:none;"></div>
+
+      <div id="claudeForecastWrap" style="display:none;">
+        <h2>Forecast</h2>
+        <div class="signal" id="claudeForecast"></div>
+      </div>
+      <div id="claudeReadWrap" style="display:none;">
+        <h2>Read</h2>
+        <div class="signal" id="claudeRead"></div>
+      </div>
+      <div id="claudeContextWrap" style="display:none;">
+        <h2>Context — every timeframe at once</h2>
+        <div id="claudeContext"></div>
+      </div>
+      <div id="claudeStructuresWrap" style="display:none;">
+        <h2>Structures</h2>
+        <div id="claudeStructures"></div>
+      </div>
+    </div>
+    <div id="tab-lead" style="display:none;">
+      <!-- MARKET LEAD ENGINE. Everything below this comment is rendered by
+           static/lead_engine.js and styled by static/lead_engine.css. No
+           script in this file reads or writes any of it, and it reads
+           nothing belonging to the other tabs: the only contact is the
+           leadEngineStore.show()/hide() pair called by the tab switcher. -->
+      <div class="note">
+        A separate realtime <strong>market microstructure</strong> engine: its own Bybit socket,
+        its own L2 order book, its own features, its own storage and its own API namespace.
+        It shares this page and nothing else — no Elliott code runs here, and nothing here
+        touches the wave counts, the strategies or the paper trading.
+      </div>
+      <div class="field-row">
+        <label style="font-size:11px;color:#9aa3b2;display:flex;align-items:center;gap:6px;">Symbol
+          <select id="leSymbol"></select>
+        </label>
+        <button id="leOpen" class="panel-btn">OPEN CHART</button>
+        <button id="leRefresh" class="panel-btn">Refresh</button>
+      </div>
+      <div class="le-head" id="leHead"></div>
+      <div id="leBody"></div>
+      <h2>Fleet</h2>
+      <div id="leFleet"></div>
+    </div>
+    <div id="tab-mtf" style="display:none;">
+      <div class="note">
+        Counts <strong>5m, 15m, 1h and 4h</strong> and reconciles them into one opinion. A count from
+        a single timeframe answers a question nobody asked: a five-wave advance on 5m inside a 4h
+        correction is a bounce, and only looking at both says so.
+      </div>
+      <div class="note">
+        <strong>Timeframes whose data has not moved are read from cache</strong>, not recounted — a
+        4h chart produces one new candle every four hours, and a full run is a dozen model calls.
+        Freshness is decided by the newest candle the saved analysis saw, never by a clock. The result
+        names what was reused and what was recomputed, so the saving is visible rather than claimed.
+      </div>
+      <div class="field-row">
+        <button class="panel-btn" id="runMtf" style="flex:2;">Analyse all timeframes</button>
+        <button class="panel-btn" id="clearMtf" style="flex:1;" title="Forget every saved analysis for this instrument and recompute from scratch">Forget cache</button>
+      </div>
+      <div class="hint" id="mtfStatus">Uses the Source / Symbol / Candles pickers in the header.</div>
+      <div id="mtfProgressWrap" style="display:none;">
+        <h2>Live progress</h2>
+        <div id="mtfProgress" class="joblog"></div>
+      </div>
+      <div id="mtfVerdict" style="display:none;"></div>
+      <div id="mtfFramesWrap" style="display:none;">
+        <h2>Per timeframe</h2>
+        <div class="hint" style="margin-bottom:6px;">Click one to draw it on the chart.</div>
+        <div id="mtfFrames"></div>
+      </div>
+      <div id="mtfAnalysisWrap" style="display:none;">
+        <h2>Technical analysis</h2>
+        <div class="signal" id="mtfAnalysis" style="white-space:pre-wrap; line-height:1.45;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  // Without this, a tab/PWA session that was already open when a new
+  // version deploys keeps running the OLD page's JS in memory even after
+  // the new service worker takes over network requests in the background
+  // - the browser doesn't re-execute a page's script just because a new
+  // SW activated. This was observed in practice: server logs showed a
+  // fresh deploy correctly serving updated files to a phone within
+  // seconds, while the already-open tab kept displaying old UI text,
+  // because nothing ever told that tab to reload. `controllerchange`
+  // fires exactly when the new SW takes control - reload once, then.
+  let reloadedForNewWorker = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloadedForNewWorker) return;
+    reloadedForNewWorker = true;
+    window.location.reload();
+  });
+}
+
+const chartEl = document.getElementById('chart');
+const chart = LightweightCharts.createChart(chartEl, {
+  layout: { background: { color: '#0e1117' }, textColor: '#c7cbd3' },
+  grid: { vertLines: { color: '#1b1f29' }, horzLines: { color: '#1b1f29' } },
+  timeScale: { timeVisible: true, secondsVisible: false },
+  rightPriceScale: { borderColor: '#232733' },
+});
+function resize() { chart.resize(chartEl.clientWidth, chartEl.clientHeight); }
+new ResizeObserver(resize).observe(chartEl);
+
+const candleSeries = chart.addCandlestickSeries({
+  upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
+  wickUpColor: '#26a69a', wickDownColor: '#ef5350',
+});
+
+let overlayLines = [];
+let lastData = null;
+let liveTimer = null;
+// The AI labelling mode's current count, and ONLY ever one the server
+// validated (see the AI tab's handler). Declared up here with the rest of
+// the chart state because applyChartData draws it - a proposal that was
+// rejected leaves this empty, so nothing unvalidated can be on screen.
+let aiLabelWaves = [];
+// Markers belonging to the saved AI count currently drawn on the LIVE
+// chart. Held separately because candleSeries.setMarkers() replaces the
+// whole set: markers() merges these in rather than the AI count and the
+// engine's own labels taking turns wiping each other out.
+let liveAiMarkers = [];
+
+function clearOverlays() {
+  overlayLines.forEach(s => s.removeSeries ? s.removeSeries() : chart.removeSeries(s));
+  overlayLines = [];
+}
+
+// The confirmed ZigZag swing history (candle_builder/pivots.py), oldest to
+// newest, drawn as ONE thin line across the WHOLE loaded history - this is
+// what gives visual context for "how the waves actually went" leading up
+// to the current count, instead of the current scenario's handful of
+// labelled waves floating with nothing behind them. Deliberately dim/
+// neutral so it reads as background structure, not competing with the
+// bright current-wave overlay drawn on top by drawWaves() below.
+function drawStructureZigzag(pivots) {
+  if (!pivots || pivots.length < 2) return;
+  const series = chart.addLineSeries({
+    color: '#5b6478', lineWidth: 1, lineStyle: 0,
+    lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false,
+  });
+  series.setData(pivots.map(p => ({ time: p.time, value: p.price })));
+  overlayLines.push(series);
+}
+
+// A wave count proposed by the AI labelling mode and ALREADY validated
+// server-side (existence, order, contiguity, alternation, causality, hard
+// Elliott rules - see elliott_engine/external_count.py). Drawn dashed and
+// in its own colour because it is a second opinion over the whole
+// history, not the deterministic engine's own count - the two must never
+// be mistaken for each other on the chart.
+function drawAiCount(waves) {
+  if (!waves || !waves.length) return;
+  waves.forEach(w => {
+    const series = chart.addLineSeries({
+      color: '#e879f9', lineWidth: 2, lineStyle: 2,
+      lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false,
+    });
+    series.setData([
+      { time: w.start_time, value: w.start_price },
+      { time: w.end_time, value: w.end_price },
+    ]);
+    overlayLines.push(series);
+  });
+}
+
+function drawWaves(waves) {
+  waves.forEach(w => {
+    const series = chart.addLineSeries({ color: w.direction === 'UP' ? '#4ade80' : '#f87171', lineWidth: 2, lastValueVisible: false, priceLineVisible: false });
+    series.setData([
+      { time: w.start_time, value: w.start_price },
+      { time: w.end_time, value: w.end_price },
+    ]);
+    overlayLines.push(series);
+  });
+}
+
+function drawTradeLevels(signals) {
+  const accepted = signals.filter(s => s.decision === 'SIGNAL_ACCEPTED').slice(-5);
+  accepted.forEach(s => {
+    [{ price: s.stop_loss, color: '#f87171', title: 'SL' },
+     ...(s.take_profits || []).map((tp, i) => ({ price: tp.price, color: '#60a5fa', title: `TP${i + 1}` }))]
+    .forEach(level => {
+      const line = candleSeries.createPriceLine({ price: level.price, color: level.color, lineWidth: 1, lineStyle: 2, title: level.title });
+      overlayLines.push({ removeSeries: () => candleSeries.removePriceLine(line) });
+    });
+  });
+}
+
+// Fibonacci retracement/extension levels for whichever wave the primary
+// scenario expects NEXT (backend: fibonacci_levels_for_scenario) - drawn
+// as a persistent overlay regardless of whether any signal was ever
+// accepted. Before this, the ONLY fib-derived lines on the chart were an
+// accepted signal's TP/SL (drawTradeLevels above) - with a confidence
+// threshold and hard Elliott-rule gating, accepted signals are rare, so
+// for long stretches Fibonacci looked entirely absent even though the
+// scoring engine was using it the whole time internally.
+function drawFibonacciLevels(levels) {
+  (levels || []).forEach(lvl => {
+    const line = candleSeries.createPriceLine({
+      price: lvl.price, color: '#c084fc', lineWidth: 1, lineStyle: 3,
+      title: `Fib ${lvl.ratio.toFixed(3)} (W${lvl.for_wave})`,
+    });
+    overlayLines.push({ removeSeries: () => candleSeries.removePriceLine(line) });
+  });
+}
+
+// The saved AI count for THIS series, drawn on the live chart so a live
+// session opens with the model's reading of the history already on it and
+// then keeps streaming under it - the same markup the analyst tab
+// produced, not a second opinion computed here. The backend only hands
+// over structures that passed the same hard Elliott validation everything
+// else does (elliott_engine/external_count.py), so nothing unvalidated
+// can reach this function.
+//
+// It is deliberately the SAME colours the analyst tab uses (motive sky
+// blue, corrective amber, projection dashed pink): one count shown in two
+// places should not look like two different counts.
+function drawLiveAiAnalysis(analysis) {
+  liveAiMarkers = [];
+  if (!analysis) return;
+  (analysis.accepted || []).forEach(st => {
+    const waves = st.waves || [];
+    if (!waves.length) return;
+    const color = structureColor(st.structure);
+    const line = chart.addLineSeries({
+      color, lineWidth: 2, lastValueVisible: false, priceLineVisible: false,
+      crosshairMarkerVisible: false,
+    });
+    line.setData([{ time: waves[0].start_time, value: waves[0].start_price }]
+      .concat(waves.map(w => ({ time: w.end_time, value: w.end_price }))));
+    overlayLines.push(line);
+    waves.forEach(w => liveAiMarkers.push({
+      time: w.end_time, position: w.direction === 'UP' ? 'aboveBar' : 'belowBar',
+      color, shape: 'circle', text: w.label,
+    }));
+  });
+
+  // The projection carries forward PAST the newest candle, which is the
+  // whole point in live mode: the dashed path is where this count says the
+  // next 50 bars go, and the stream either walks into it or invalidates it
+  // in front of you.
+  const proj = analysis.projection;
+  if (!proj || !proj.targets || !proj.targets.length) return;
+  if (proj.path && proj.path.length) {
+    const path = chart.addLineSeries({
+      color: PROJECTION_COLOR, lineWidth: 2, lineStyle: 2,
+      lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false,
+    });
+    path.setData(proj.path.map(p => ({ time: p.time, value: p.price })));
+    overlayLines.push(path);
+  }
+  proj.targets.forEach(target => {
+    const level = candleSeries.createPriceLine({
+      price: target.price, color: PROJECTION_COLOR,
+      lineWidth: target.primary ? 2 : 1, lineStyle: 2,
+      title: `AI W${proj.next_label} ${target.ratio}${target.primary ? ' \u2605' : ''}`,
+    });
+    overlayLines.push({ removeSeries: () => candleSeries.removePriceLine(level) });
+  });
+}
+
+// Structure events (BOS/CHoCH) accumulate for the entire history/session
+// with no cap from the backend - drawing all of them as text markers on a
+// long series stacks dozens of labels on top of each other into unreadable
+// noise (this was mistaken for the underlying wave/structure detection
+// itself being wrong; it's a chart-rendering limit, not a signal bug).
+// Only the most recent MAX_STRUCTURE_MARKERS are ever drawn.
+const MAX_STRUCTURE_MARKERS = 30;
+
+// Numbered wave markers are capped too, same reasoning as structure
+// events above but a much higher ceiling - these ARE the content the user
+// is asking to see across history (not noise), so only trim if a really
+// long session would otherwise choke the chart's marker rendering.
+const MAX_WAVE_LABELS = 500;
+
+function markers(events, scenarios, confirmedChain, subwaveHistory) {
+  const m = [];
+  events.slice(-MAX_STRUCTURE_MARKERS).forEach(e => {
+    m.push({ time: e.time, position: e.direction === 'UP' ? 'belowBar' : 'aboveBar',
+             color: e.kind === 'CHoCH' ? '#facc15' : '#60a5fa', shape: e.direction === 'UP' ? 'arrowUp' : 'arrowDown',
+             text: e.kind });
+  });
+
+  // TWO things get numbered, and only two: the single globally consistent
+  // chain of confirmed structures (backend: ScenarioEngine.confirmed_chain,
+  // where at most one wave covers any given moment), and the current
+  // count's own still-developing waves on top of it. Deduped by
+  // label+start_time because the current count's already-fixed waves are
+  // in the chain too.
+  //
+  // This replaced an append-only archive of every label the engine ever
+  // considered, which left contradictory readings of the same candles on
+  // the chart forever - each re-anchor added another "wave 3" over a
+  // stretch that already had one. The backend now supersedes by time
+  // instead of accumulating, so nothing here has to guess which of two
+  // conflicting labels is the live one.
+  const seen = new Set();
+  const waveLabels = [];
+  const addWave = w => {
+    const key = w.label + '@' + w.start_time;
+    if (seen.has(key)) return;
+    seen.add(key);
+    waveLabels.push(w);
+  };
+  (confirmedChain || []).forEach(addWave);
+  scenarios.forEach(sc => sc.waves.forEach(addWave));
+  waveLabels.sort((a, b) => a.end_time - b.end_time);
+  waveLabels.slice(-MAX_WAVE_LABELS).forEach(w => {
+    m.push({ time: w.end_time, position: 'inBar', color: '#9aa3b2', shape: 'circle', text: w.label });
+  });
+
+  // Subwaves (i-ii-iii-iv-v inside a motive 1/3/5 wave - backend:
+  // BacktestEngine.subwave_history) - smaller/dimmer markers so they read
+  // as a finer detail nested under the primary count, not competing with
+  // it for visual weight.
+  (subwaveHistory || []).slice(-MAX_WAVE_LABELS).forEach(w => {
+    m.push({ time: w.end_time, position: 'belowBar', color: '#5eead4', shape: 'circle', text: w.label, size: 0.6 });
+  });
+
+  liveAiMarkers.forEach(mark => m.push(mark));
+
+  m.sort((a, b) => a.time - b.time);
+  candleSeries.setMarkers(m);
+}
+
+function row(k, v) { return `<div class="row"><span class="k">${k}</span><span class="v">${v}</span></div>`; }
+
+function fmtTime(sec) {
+  if (sec === null || sec === undefined) return '—';
+  const d = new Date(sec * 1000);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' '
+    + d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+}
+
+// Every closed (realized) trade with its actual PnL, win/loss colored -
+// the aggregate winrate/expectancy tables above answer "how did the
+// strategy do overall", this answers "what actually happened, trade by
+// trade" (spec follow-up: PnL of winning/losing trades must be visible,
+// not just rolled-up stats).
+function closedTradesTableHtml(positions) {
+  if (!positions || !positions.length) {
+    return '<div class="note">No closed trades yet.</div>';
+  }
+  const rows = positions.slice().reverse().map(p => {
+    const pnl = p.realized_pnl ?? 0;
+    const win = pnl > 0;
+    const pnlClass = pnl === 0 ? '' : (win ? 'up' : 'down');
+    const pnlText = (pnl > 0 ? '+' : '') + pnl.toFixed(2);
+    return `<tr>
+      <td>${p.wave_label || ''} ${p.side || ''}</td>
+      <td>${fmtTime(p.opened_at)}</td>
+      <td>${fmtTime(p.closed_at)}</td>
+      <td>${p.entry_price != null ? p.entry_price.toFixed(4) : '—'}</td>
+      <td><span class="pill ${pnlClass}">${pnlText}</span></td>
+    </tr>`;
+  }).join('');
+  return `<table><tr><th>Wave</th><th>Opened</th><th>Closed</th><th>Entry</th><th>PnL</th></tr>${rows}</table>`;
+}
+
+// The saved AI count's provenance and, more importantly, its AGE. A count
+// made twelve candles ago may still be right or may have been invalidated
+// by the very next bar; showing the markup without saying how far behind
+// it is would let a stale reading pass for a current one.
+function aiAnalysisRows(data) {
+  const ai = data.ai_analysis;
+  if (ai === undefined) return '';        // not a live response at all
+  if (!ai) {
+    return row('AI count', '<span class="v">none saved — run the Analyst tab on '
+      + 'Bybit ' + escapeHtml(data.symbol || '') + ' ' + escapeHtml(data.timeframe || '') + '</span>');
+  }
+  const structures = (ai.accepted || []).length;
+  const age = ai.candles_since > 0
+    ? `${ai.candles_since} candle(s) behind`
+    : 'current';
+  return row('AI count', `${structures} structure(s) · ${escapeHtml(ai.model || 'model')}`)
+    + row('AI count age', age)
+    + (ai.projection && ai.projection.next_label
+        ? row('AI expects next', 'wave ' + escapeHtml(String(ai.projection.next_label)))
+        : '');
+}
+
+// Every stop and take-profit LEG that filled, newest first. This is the
+// thing that was missing entirely: the chart showed TP1 and TP2 crossed
+// and the panel below could only say "open positions: 1".
+function fillsTableHtml(fills) {
+  if (!fills || !fills.length) {
+    return '<div style="margin-top:12px;font-weight:600;">Fills</div>'
+      + '<div class="note">No take-profit or stop has filled yet.</div>';
+  }
+  const rows = fills.slice().reverse().map(f => {
+    const pnl = f.position_realized_pnl ?? 0;
+    const kind = f.event === 'TP_HIT' ? (f.label || 'TP')
+      : f.event === 'STOP_LOSS' ? 'STOP' : f.event;
+    const cls = f.event === 'STOP_LOSS' ? 'down' : (f.event === 'TP_HIT' ? 'up' : '');
+    return `<tr><td><span class="pill ${cls}">${escapeHtml(kind)}</span></td>`
+      + `<td>${escapeHtml(String(f.wave_label || ''))}</td>`
+      + `<td>${fmtTime(Math.round((f.at || 0) / 1000))}</td>`
+      + `<td>${f.price != null ? f.price.toFixed(4) : '—'}</td>`
+      + `<td>${(pnl > 0 ? '+' : '') + pnl.toFixed(2)}</td></tr>`;
+  }).join('');
+  return '<div style="margin-top:12px;font-weight:600;">Fills</div>'
+    + `<table><tr><th>Event</th><th>Wave</th><th>When</th><th>Price</th><th>Realized</th></tr>${rows}</table>`;
+}
+
+function renderDebugPanel(data) {
+  const primary = data.scenarios[0];
+  const debugEl = document.getElementById('debug');
+  const wave = primary && primary.waves.length ? primary.waves[primary.waves.length - 1] : null;
+  debugEl.innerHTML = [
+    row('Symbol', data.symbol + (data.timeframe ? ' · ' + data.timeframe : '')),
+    row('Primary wave', wave ? wave.label : '—'),
+    row('Status', wave ? wave.status : '—'),
+    row('Confidence', primary ? primary.probability.toFixed(1) + '%' : '—'),
+    row('Invalidation', primary && primary.invalidation ? primary.invalidation.toFixed(4) : '—'),
+    row('Next expected', primary && primary.next_expected_label ? primary.next_expected_label : '—'),
+    row('Equity', (data.final_equity ?? data.equity ?? 0).toFixed(2)),
+  ].join('') + aiAnalysisRows(data);
+
+  const primaryEl = document.getElementById('primary');
+  if (!data.scenarios.length) {
+    primaryEl.innerHTML = '<div class="note">No valid Elliott scenario currently active. Structure is ambiguous — NO TRADE (section 22).</div>';
+  } else {
+    primaryEl.innerHTML = data.scenarios.map((sc, i) => `
+      <div class="signal ${i === 0 ? 'accepted' : ''}">
+        <div class="row"><span class="k">Scenario ${i + 1}</span><span class="v">${sc.probability.toFixed(1)}%</span></div>
+        <div class="row"><span class="k">Status</span><span class="v">${sc.status}</span></div>
+        <div class="row"><span class="k">Waves</span><span class="v">${sc.waves.map(w => w.label).join(' → ')}</span></div>
+      </div>`).join('');
+  }
+
+  const sigEl = document.getElementById('signals');
+  const recent = data.signals.slice(-15).reverse();
+  sigEl.innerHTML = recent.length ? recent.map(s => `
+    <div class="signal ${s.decision === 'SIGNAL_ACCEPTED' ? 'accepted' : 'rejected'}">
+      <div class="row"><span class="k">${s.wave_label} ${s.side}</span><span class="pill ${s.decision === 'SIGNAL_ACCEPTED' ? 'up' : 'down'}">${s.decision.replace('SIGNAL_', '')}</span></div>
+      <div class="row"><span class="k">Confidence</span><span class="v">${s.confidence.toFixed(1)}</span></div>
+      <div class="row"><span class="k">Reason</span><span class="v" style="text-align:left;max-width:200px;">${s.reason || s.rejection_reason || ''}</span></div>
+    </div>`).join('') : '<div class="note">No signals evaluated.</div>';
+
+  const metricsEl = document.getElementById('metrics');
+  let html = '<div style="font-weight:600;margin-bottom:4px;">Trade history</div>'
+    + closedTradesTableHtml(data.closed_positions);
+  if (data.metrics) {
+    const m = data.metrics.overall;
+    html += `<div style="margin-top:12px;font-weight:600;">Overall</div><table><tr><th>Metric</th><th>Overall</th></tr>
+      <tr><td>Trades</td><td>${m.trades}</td></tr>
+      <tr><td>Winrate</td><td>${(m.winrate * 100).toFixed(1)}%</td></tr>
+      <tr><td>Profit Factor</td><td>${m.profit_factor ? m.profit_factor.toFixed(2) : '—'}</td></tr>
+      <tr><td>Expectancy</td><td>${m.expectancy.toFixed(2)}</td></tr>
+      <tr><td>Avg R</td><td>${m.average_r.toFixed(2)}</td></tr>
+      <tr><td>Median R</td><td>${m.median_r.toFixed(2)}</td></tr>
+      <tr><td>Max DD</td><td>${(m.max_drawdown * 100).toFixed(1)}%</td></tr>
+      </table><div style="margin-top:8px;font-weight:600;">By wave type</div><table><tr><th>Wave</th><th>Trades</th><th>Winrate</th><th>Avg R</th></tr>`;
+    Object.entries(data.metrics.by_wave).forEach(([k, v]) => {
+      html += `<tr><td>${k}</td><td>${v.trades}</td><td>${(v.winrate * 100).toFixed(0)}%</td><td>${v.average_r.toFixed(2)}</td></tr>`;
+    });
+    html += '</table>';
+  } else {
+    const rec = data.trade_record || {};
+    // Realized money on positions that are still OPEN was invisible: a
+    // trade with two of its four take-profit legs filled read as
+    // "open: 1, closed: 0" and nothing else. The legs are money, and the
+    // record below is what the AI is told on its next run.
+    const openRealized = (data.open_positions || [])
+      .reduce((sum, p) => sum + (p.realized_pnl || 0), 0);
+    html += `<div style="margin-top:12px;font-weight:600;">Live</div><table><tr><th>Metric</th><th>Live</th></tr>
+      <tr><td>Open positions</td><td>${(data.open_positions || []).length}</td></tr>
+      <tr><td>Closed trades</td><td>${(data.closed_positions || []).length}</td></tr>
+      <tr><td>Take-profit legs filled</td><td>${rec.take_profits_hit ?? 0}</td></tr>
+      <tr><td>Stops hit</td><td>${rec.stops_hit ?? 0}</td></tr>
+      <tr><td>Realized (open trades)</td><td>${openRealized.toFixed(2)}</td></tr>
+      <tr><td>Realized (recorded)</td><td>${(rec.realized_pnl ?? 0).toFixed(2)}</td></tr>
+      <tr><td>Equity</td><td>${(data.equity ?? 0).toFixed(2)}</td></tr>
+      <tr><td>Trading enabled</td><td>${data.trading_enabled}</td></tr>
+      </table>`;
+    html += fillsTableHtml(data.fills);
+  }
+  metricsEl.innerHTML = html;
+
+  const noteEl = document.getElementById('note');
+  noteEl.classList.remove('error');
+  if (data.error) {
+    noteEl.style.display = 'block';
+    noteEl.classList.add('error');
+    noteEl.textContent = `Live connection failed: ${data.error}`;
+  } else if (data.waiting_for_first_candle) {
+    noteEl.style.display = 'block';
+    const trades = data.trades_received || 0;
+    const tradesMsg = trades > 0
+      ? `${trades} trade(s) received so far - market data IS flowing.`
+      : 'No trades received yet - if this stays at 0 for more than a few seconds, the WebSocket '
+        + 'connection likely failed (check that the symbol is correct and actively trading on Bybit).';
+    noteEl.textContent = `Connected - no ${data.timeframe || ''} candle has closed yet. This is normal: `
+      + `a bar only appears once a full ${data.timeframe || ''} interval has actually elapsed after Start. ` + tradesMsg;
+  } else if (data.tradeable === false) {
+    noteEl.style.display = 'block';
+    noteEl.textContent = `${data.timeframe} is confirmation-only, not a tradeable degree `
+      + '(5m/15m/1h/4h are) - structure, wave counts and Fibonacci are shown as usual, but no '
+      + 'signals/trades are evaluated here.';
+  } else if (data.note) {
+    noteEl.style.display = 'block';
+    noteEl.textContent = data.note;
+  } else {
+    noteEl.style.display = 'none';
+  }
+}
+
+function normalizeSymbol(raw) {
+  return (raw || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+}
+
+// Live polling re-fetches and re-applies the whole chart every 4s (see
+// fetchLiveState) - calling fitContent() on every single one of those
+// updates was the cause of the live chart being "impossible to control":
+// any manual zoom/pan the user had just done got silently thrown away a
+// few seconds later. fitContent() must only run once, for the FIRST
+// render of a given run/session - shouldFitOnNextData tracks that; run()
+// (and the live-start flow, which calls run() too) sets it back to true
+// whenever the user actually starts a new session (new symbol/source/TF),
+// and it's consumed (never fires again) on the very next render.
+let shouldFitOnNextData = true;
+
+// What identifies "the same series" - a live poll every few seconds is
+// the SAME chart with one more bar on it, while a symbol or timeframe
+// change is a different chart entirely and must be reset.
+function seriesKeyOf(data) {
+  return `${data.symbol || ''}|${data.timeframe || ''}|${(data.candles || []).length ? data.candles[0].time : 0}`;
+}
+
+// A cheap signature of everything drawn ON TOP of the candles. Rebuilding
+// the overlay set means removing and re-adding a dozen line series, which
+// is what made the live chart flicker and jump every four seconds; with
+// this it only happens when the overlays have actually changed.
+function overlaySignature(data) {
+  const ai = data.ai_analysis;
+  return JSON.stringify([
+    (data.pivots || []).length,
+    (data.scenarios || []).map(s => s.waves.map(w => w.label + w.end_time).join()),
+    (data.confirmed_chain || []).length,
+    (data.subwave_history || []).length,
+    (data.fibonacci_levels || []).map(l => l.price),
+    (data.structure_events || []).length,
+    ai ? [ai.analysed_at, (ai.accepted || []).length, ai.projection && ai.projection.next_label] : null,
+    (data.signals || []).length,
+    aiLabelWaves.length,
+  ]);
+}
+
+let lastSeriesKey = null;
+let lastOverlaySignature = null;
+let lastCandleCount = 0;
+
+function applyChartData(data) {
+  // THE JITTER FIX. setData() replaces the whole series: on a live poll
+  // that is 1000 candles re-sent every four seconds, which repaints the
+  // chart, and combined with the overlay rebuild below made it tick,
+  // flicker and drift on its own. A live update is one bar - the forming
+  // one, plus any that closed since the last poll - so that is what gets
+  // sent now. setData stays for a genuinely new series.
+  const key = seriesKeyOf(data);
+  const candles = data.candles || [];
+  if (key !== lastSeriesKey || candles.length < lastCandleCount) {
+    candleSeries.setData(candles);
+    lastSeriesKey = key;
+  } else {
+    // Re-send only the tail. update() must be called in time order and
+    // never for a bar older than the last one the series has seen.
+    const fresh = candles.slice(Math.max(0, lastCandleCount - 1));
+    fresh.forEach(c => candleSeries.update(c));
+  }
+  lastCandleCount = candles.length;
+
+  const signature = overlaySignature(data);
+  if (signature === lastOverlaySignature) {
+    renderDebugPanel(data);
+    lastData = data;
+    return;         // nothing on top of the candles changed - leave it alone
+  }
+  lastOverlaySignature = signature;
+  clearOverlays();
+  // Full swing-structure context FIRST (drawn underneath), then the
+  // current scenario's labelled waves on top - see each function's own
+  // comment for why they're visually distinct rather than one series.
+  drawStructureZigzag(data.pivots || []);
+  // Only the PRIMARY (highest-probability) scenario's waves are drawn as
+  // chart overlays - alternates are still listed with their probabilities
+  // in the "Primary Scenario" text panel below. Drawing every alternate's
+  // wave count on the chart at once produced overlapping, crossing lines
+  // over the same candles that read as visual noise / "broken" rather
+  // than as useful alternative counts.
+  const primary = data.scenarios && data.scenarios[0];
+  // On an AI-only live chart `scenarios[0]` IS the agent's count - the
+  // server sends it there so the panel below reads the thing actually
+  // being traded. Drawing it here as well would label every wave twice,
+  // once from the scenario and once from `ai_analysis`. The panel keeps
+  // it; the chart gets it from drawLiveAiAnalysis alone.
+  if (primary && !data.ai_only) drawWaves(primary.waves);
+  // A server-VALIDATED AI count, if one has been accepted, drawn in its
+  // own colour so it never reads as the engine's own conclusion. An
+  // unvalidated or rejected proposal never gets here - aiLabelWaves is
+  // only ever filled from a response whose `valid` was true.
+  // Not on an AI-only live chart: the agent's own count is already there,
+  // and a second one over the same candles is the superimposed mess the
+  // analyst tab exists to avoid.
+  if (!data.ai_only) drawAiCount(aiLabelWaves);
+  drawTradeLevels(data.signals);
+  drawFibonacciLevels(data.fibonacci_levels);
+  // Before markers(): it merges liveAiMarkers into the single marker set
+  // the candle series can hold, so this has to have filled them first.
+  drawLiveAiAnalysis(data.ai_analysis);
+  markers(data.structure_events || [], (primary && !data.ai_only) ? [primary] : [],
+          data.confirmed_chain || [], data.subwave_history || []);
+  if (shouldFitOnNextData) {
+    chart.timeScale().fitContent();
+    shouldFitOnNextData = false;
+  }
+  renderDebugPanel(data);
+  lastData = data;
+}
+
+function stopLivePolling() {
+  if (liveTimer) { clearInterval(liveTimer); liveTimer = null; }
+  liveSymbol = null;
+}
+
+function showError(message) {
+  document.getElementById('status').textContent = 'error';
+  const noteEl = document.getElementById('note');
+  noteEl.style.display = 'block';
+  noteEl.textContent = message;
+  noteEl.classList.add('error');
+}
+
+async function parseErrorDetail(resp) {
+  try {
+    const body = await resp.json();
+    return body.detail || `HTTP ${resp.status}`;
+  } catch (e) {
+    return `HTTP ${resp.status}`;
+  }
+}
+
+const COLD_START_MESSAGE = 'Still waiting on the server. Free-tier hosting (e.g. Render) puts a '
+  + 'sleeping service to sleep after ~15 minutes idle - the first request after that can take up '
+  + 'to a minute to wake it back up. This is normal, not a stuck connection; it will resolve on its '
+  + 'own shortly, or try again in a few seconds.';
+
+// Every request that hits the backend goes through this instead of bare
+// fetch() - a request that used to just hang in the UI forever (looking
+// exactly like a broken/"infinite connecting" app) now times out and says
+// WHY, instead of leaving the user staring at a spinner with no idea
+// whether anything is happening.
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      throw new Error(COLD_START_MESSAGE);
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+let liveSymbol = null;
+
+async function fetchLiveState() {
+  const timeframe = document.getElementById('timeframe').value;
+  let resp;
+  try {
+    resp = await fetchWithTimeout(`/api/live/state?symbol=${encodeURIComponent(liveSymbol)}&timeframe=${timeframe}`, {}, 45000);
+  } catch (e) {
+    document.getElementById('status').textContent = 'waking up server…';
+    showError(e.message);
+    return;
+  }
+  if (!resp.ok) {
+    showError(await parseErrorDetail(resp));
+    return;
+  }
+  const data = await resp.json();
+  const seeded = data.seeded_candles || 0;
+  // "which of these came from history and which arrived live" is the
+  // difference between a chart that is streaming and one that is merely
+  // showing the past, so both numbers are named rather than totalled.
+  const streamed = Math.max(0, data.candles.length - seeded);
+  document.getElementById('status').textContent = data.waiting_for_first_candle
+    ? `connected - waiting for the first ${timeframe} candle to close…`
+    : `${data.candles.length} candles (${seeded} history + ${streamed} live)`;
+  applyChartData(data);
+}
+
+async function run() {
+  const source = document.getElementById('source').value;
+  const symbol = normalizeSymbol(document.getElementById('symbol').value);
+  document.getElementById('symbol').value = symbol;
+  const timeframe = document.getElementById('timeframe').value;
+  stopLivePolling();
+  // A fresh run/live-start is a genuinely new session (new symbol/source/
+  // TF) - the chart SHOULD fit to it once. See applyChartData's comment
+  // for why this must NOT happen again on every subsequent live poll.
+  shouldFitOnNextData = true;
+  // ...and the incremental-update state has to forget the previous series,
+  // or the first render of the new one would try to extend the old one.
+  lastSeriesKey = null;
+  lastOverlaySignature = null;
+  lastCandleCount = 0;
+
+  if (source === 'live') {
+    if (!symbol) { showError('Enter a symbol first, e.g. BTCUSDT.'); return; }
+    liveSymbol = symbol; // captured once - editing the input afterwards
+                         // does NOT redirect an already-running poll loop
+                         // at a half-typed symbol.
+    document.getElementById('status').textContent = 'connecting… (can take up to a minute on a cold server)';
+    await fetchLiveState();
+    liveTimer = setInterval(fetchLiveState, 4000);
+    return;
+  }
+
+  const cycles = document.getElementById('cycles').value;
+  const threshold = document.getElementById('threshold').value;
+  const limit = document.getElementById('limit').value;
+  const equity = document.getElementById('equity').value;
+  document.getElementById('status').textContent = 'running… (can take up to a minute on a cold server)';
+  // A deep history (up to 10,000 candles) means Bybit gets hit with
+  // several paginated requests back to back (see bybit_rest_client.py) -
+  // give it real headroom instead of the default 45s budget that's fine
+  // for a single-page fetch.
+  const fetchTimeoutMs = source === 'bybit' && Number(limit) > 1000 ? 90000 : 45000;
+  let resp;
+  try {
+    resp = await fetchWithTimeout(
+      `/api/run?source=${source}&symbol=${encodeURIComponent(symbol)}&cycles=${cycles}&threshold=${threshold}&timeframe=${timeframe}&limit=${limit}&equity=${equity}`,
+      {}, fetchTimeoutMs);
+  } catch (e) {
+    showError(e.message);
+    return;
+  }
+  if (!resp.ok) {
+    showError(await parseErrorDetail(resp));
+    return;
+  }
+  const data = await resp.json();
+  document.getElementById('status').textContent = `${data.candles.length} candles (${data.timeframe || timeframe})`;
+  applyChartData(data);
+}
+
+function updateSourceUI() {
+  const source = document.getElementById('source').value;
+  const isLive = source === 'live';
+  const needsRealSymbol = source !== 'synthetic';
+  document.getElementById('cyclesField').style.display = source === 'synthetic' ? '' : 'none';
+  document.getElementById('tfField').style.display = needsRealSymbol ? '' : 'none';
+  // Live uses it too now: it's how deep the REST backfill goes before the
+  // stream takes over, so the depth of a live session's history is the
+  // user's choice exactly as it is for a historical run.
+  document.getElementById('limitField').style.display = (source === 'bybit' || isLive) ? '' : 'none';
+  document.getElementById('liveStart').style.display = isLive ? '' : 'none';
+  document.getElementById('liveStop').style.display = isLive ? '' : 'none';
+  if (!isLive) stopLivePolling();
+
+  const symbolInput = document.getElementById('symbol');
+  if (needsRealSymbol && (symbolInput.value === 'SYNTHETIC-DEMO' || symbolInput.value === '')) {
+    symbolInput.value = 'BTCUSDT';
+  } else if (!needsRealSymbol && symbolInput.value === 'BTCUSDT') {
+    symbolInput.value = 'SYNTHETIC-DEMO';
+  }
+  symbolInput.placeholder = needsRealSymbol ? 'e.g. BTCUSDT (no slash, USDT-margined futures symbol)' : '';
+}
+
+document.getElementById('source').addEventListener('change', updateSourceUI);
+document.getElementById('run').addEventListener('click', run);
+// Manual escape hatch for the zoom/pan the user has done during a live
+// session, now that periodic polling no longer auto-resets it (see
+// applyChartData) - without this there'd be no way back to the full view
+// short of reloading the page.
+document.getElementById('fitChart').addEventListener('click', () => chart.timeScale().fitContent());
+document.getElementById('liveStart').addEventListener('click', async () => {
+  const symbol = normalizeSymbol(document.getElementById('symbol').value);
+  document.getElementById('symbol').value = symbol;
+  if (!symbol) { showError('Enter a symbol first, e.g. BTCUSDT.'); return; }
+  const threshold = Number(document.getElementById('threshold').value);
+  const equity = Number(document.getElementById('equity').value);
+  // The history the live session starts from. Without it a live chart
+  // begins genuinely empty - no past, no pivots, no count - and the first
+  // useful reading is one full bar away on 5m and days away on 4h. The
+  // backfill is fetched from Bybit REST and replayed through the exact
+  // path a live candle takes, so the chart opens looking like a chart and
+  // then continues streaming into it.
+  const backfill = Math.min(5000, Math.max(0, Number(document.getElementById('limit').value) || 1000));
+  document.getElementById('status').textContent = 'starting live pipeline — loading history… '
+    + '(can take up to a minute on a cold server)';
+  let resp;
+  try {
+    resp = await fetchWithTimeout('/api/live/start', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ symbol, threshold, equity, backfill }),
+    }, 120000);   // several paginated REST pages per timeframe, not one call
+  } catch (e) {
+    showError(e.message);
+    return;
+  }
+  if (!resp.ok) { showError(await parseErrorDetail(resp)); return; }
+  const started = await resp.json();
+  const filled = started.backfilled || {};
+  const summary = Object.entries(filled).map(([tf, n]) => `${tf}:${n}`).join(' · ');
+  if (summary) document.getElementById('status').textContent = `history loaded (${summary}) — connecting…`;
+  run();
+});
+document.getElementById('liveStop').addEventListener('click', async () => {
+  const symbol = liveSymbol || normalizeSymbol(document.getElementById('symbol').value);
+  stopLivePolling();
+  await fetch('/api/live/stop', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ symbol }),
+  });
+  document.getElementById('status').textContent = 'live pipeline stopped';
+});
+
+// ---- tabs ----
+// The analyst tab swaps in a DIFFERENT chart element rather than reusing
+// the main one. Two reasons, both deliberate: the analyst's chart must
+// stay clean (no engine overlay ever reaches it), and swapping elements
+// means switching tabs can't disturb the zoom/pan state of either chart.
+const TAB_PANELS = { analysis: 'tab-analysis', ai: 'tab-ai', analyst: 'tab-analyst',
+                     mtf: 'tab-mtf', claude: 'tab-claude', lead: 'tab-lead' };
+document.querySelectorAll('#tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    btn.classList.remove('has-news');
+    const active = btn.dataset.tab;
+    Object.entries(TAB_PANELS).forEach(([tab, id]) => {
+      document.getElementById(id).style.display = tab === active ? '' : 'none';
+    });
+    const onAnalyst = active === 'analyst' || active === 'mtf' || active === 'claude';
+    const onLead = active === 'lead';
+    // 'block', not '': #analystChart is display:none in the stylesheet, and
+    // clearing the inline style just falls back to that rule - which left
+    // the tab showing an empty gap where the chart should be.
+    document.getElementById('chart').style.display = (onAnalyst || onLead) ? 'none' : 'block';
+    document.getElementById('analystChart').style.display = onAnalyst ? 'block' : 'none';
+    if (onAnalyst) ensureAnalystChart();
+    if (active === 'mtf') loadSavedMtf();
+    if (active === 'analyst') loadSavedCounts();
+    if (active === 'claude') loadClaudeTimeframes();
+    // The Lead Engine tab drives itself; it is told when it is on
+    // screen and when it is not, and it polls only while it is on.
+    if (window.leadEngineStore) {
+      if (active === 'lead') window.leadEngineStore.show();
+      else window.leadEngineStore.hide();
+    }
+  });
+});
+
+// ---- the analyst's clean chart ----
+// Created lazily: a lightweight-charts instance sizes itself from its
+// container, and the container has zero height until its tab is shown.
+let analystChart = null, analystSeries = null, analystOverlays = [];
+
+function ensureAnalystChart() {
+  if (analystChart) { resizeAnalystChart(); return; }
+  const el = document.getElementById('analystChart');
+  analystChart = LightweightCharts.createChart(el, {
+    layout: { background: { color: '#0e1117' }, textColor: '#c7cbd3' },
+    grid: { vertLines: { color: '#1b1f29' }, horzLines: { color: '#1b1f29' } },
+    timeScale: { timeVisible: true, secondsVisible: false },
+    rightPriceScale: { borderColor: '#232733' },
+  });
+  analystSeries = analystChart.addCandlestickSeries({
+    upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
+    wickUpColor: '#26a69a', wickDownColor: '#ef5350',
+  });
+  new ResizeObserver(resizeAnalystChart).observe(el);
+}
+
+function resizeAnalystChart() {
+  const el = document.getElementById('analystChart');
+  if (analystChart && el.clientWidth) analystChart.resize(el.clientWidth, el.clientHeight);
+}
+
+let analystFirstTime = 0, analystLastTime = 0;
+
+function clearAnalystOverlays() {
+  analystOverlays.forEach(s => {
+    if (s && s.__priceLine) analystSeries.removePriceLine(s.__priceLine);
+    else analystChart.removeSeries(s);
+  });
+  analystOverlays = [];
+  if (analystSeries) analystSeries.setMarkers([]);
+}
+
+// Motive structures in sky blue, corrections in amber. The colour says
+// which RULE SET the server held that structure to, not which way price
+// went - an impulse and a zigzag are validated by completely different
+// code, and conflating them on screen is how a correction gets traded as
+// a trend.
+const MOTIVE_COLOR = '#38bdf8';
+const CORRECTIVE_COLOR = '#fbbf24';
+function structureColor(name) {
+  return (name || '').startsWith('IMPULSE') || (name || '').startsWith('DIAGONAL')
+    ? MOTIVE_COLOR : CORRECTIVE_COLOR;
+}
+
+function drawAnalystCount(structures) {
+  clearAnalystOverlays();
+  const marks = [];
+  (structures || []).forEach(st => {
+    const waves = st.waves || [];
+    if (!waves.length) return;
+    const color = structureColor(st.structure);
+    const line = analystChart.addLineSeries({
+      color, lineWidth: 2, lastValueVisible: false, priceLineVisible: false,
+      crosshairMarkerVisible: false,
+    });
+    const points = [{ time: waves[0].start_time, value: waves[0].start_price }]
+      .concat(waves.map(w => ({ time: w.end_time, value: w.end_price })));
+    line.setData(points);
+    analystOverlays.push(line);
+    waves.forEach(w => {
+      marks.push({
+        time: w.end_time,
+        position: w.direction === 'UP' ? 'aboveBar' : 'belowBar',
+        color, shape: 'circle', text: w.label,
+      });
+    });
+  });
+  // Markers must be time-sorted or lightweight-charts silently drops them,
+  // and structures at different degrees interleave in time.
+  marks.sort((a, b) => a.time - b.time);
+  if (analystSeries) analystSeries.setMarkers(marks);
+}
+
+// The transcript is the answer to "what did it actually do", so it shows
+// the ARGUMENTS, not just the tool name: "list_pivots(deviation_pct=3)" and
+// "measure_move(1.0, 11, 13)" say which swings it looked at and which legs
+// it compared. A bare list of verbs does not.
+function formatStepArgs(args) {
+  if (!args || typeof args !== 'object') return '';
+  return Object.entries(args).map(([key, value]) => {
+    let shown;
+    if (Array.isArray(value)) shown = `[${value.length}]`;
+    else if (value !== null && typeof value === 'object') shown = '{…}';
+    else shown = String(value);
+    if (shown.length > 40) shown = shown.slice(0, 39) + '…';
+    return `${key}=${shown}`;
+  }).join(', ');
+}
+
+// The projection: where the count says price goes next, drawn forward from
+// the last labelled swing. Dashed and in its own colour because it is the
+// one thing on this chart that has not happened yet - a projection that
+// looks like a wave is a projection that gets read as one.
+const PROJECTION_COLOR = '#f0abfc';
+
+function drawAnalystProjection(projection) {
+  if (!projection || !projection.targets || !projection.targets.length) return;
+  const from = { time: projection.from_time, value: projection.from_price };
+
+  // The path: the expected move itself, carried 50 candles PAST the last
+  // one. Drawn to the middle ratio rather than an extreme, because a path
+  // drawn to a tail of the distribution gets read as a forecast of the
+  // tail. Thicker than the target lines so it reads as the main claim.
+  if (projection.path && projection.path.length) {
+    const path = analystChart.addLineSeries({
+      color: PROJECTION_COLOR, lineWidth: 2, lineStyle: 2,
+      lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false,
+    });
+    path.setData(projection.path.map(p => ({ time: p.time, value: p.price })));
+    analystOverlays.push(path);
+  }
+
+  // Each target as a short dashed reach from the anchor, fanned out in
+  // time so several are readable instead of stacked on one candle.
+  const step = Math.max(1, Math.round((projection.bars_ahead || 50) / (projection.targets.length + 1)));
+  const bar = projection.path && projection.path.length > 1
+    ? projection.path[1].time - projection.path[0].time : 300;
+  projection.targets.forEach((target, i) => {
+    if (target.primary) return;        // the path already draws that one
+    const line = analystChart.addLineSeries({
+      color: PROJECTION_COLOR, lineWidth: 1, lineStyle: 2,
+      lastValueVisible: false, priceLineVisible: false, crosshairMarkerVisible: false,
+    });
+    line.setData([from, { time: projection.from_time + bar * step * (i + 1), value: target.price }]);
+    analystOverlays.push(line);
+  });
+
+  projection.targets.forEach(target => {
+    const level = analystSeries.createPriceLine({
+      price: target.price, color: PROJECTION_COLOR,
+      lineWidth: target.primary ? 2 : 1, lineStyle: 2,
+      title: `W${projection.next_label} ${target.ratio}${target.primary ? ' ★' : ''}`,
+    });
+    analystOverlays.push({ __priceLine: level });
+  });
+}
+
+function renderAnalystSteps(steps) {
+  const wrap = document.getElementById('analystStepsWrap');
+  const el = document.getElementById('analystSteps');
+  wrap.style.display = '';
+  // Never hidden. "It made no tool calls at all" is itself the finding when
+  // a model answers in prose instead of working the chart, and an absent
+  // section reads as a rendering bug rather than as that answer.
+  if (!steps || !steps.length) {
+    el.innerHTML = '<div class="hint">No tool calls were made — the model never worked the chart. '
+      + 'That usually means it answered in prose, which this model or this endpoint may do if it '
+      + 'does not support tool calling.</div>';
+    return;
+  }
+  el.innerHTML = steps.map((s, i) => {
+    const args = formatStepArgs(s.args);
+    const failed = /^error/i.test(String(s.result || ''));
+    return `<div class="step">`
+      + `<span class="n">${i + 1}</span>`
+      + `<span class="t">${escapeHtml(s.tool)}<span class="a">(${escapeHtml(args)})</span></span>`
+      + `<span class="r${failed ? ' bad' : ''}">${escapeHtml(s.result)}</span></div>`;
+  }).join('');
+}
+
+function escapeHtml(text) {
+  return String(text === undefined || text === null ? '' : text)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function renderAnalystStructures(data) {
+  const wrap = document.getElementById('analystStructuresWrap');
+  const el = document.getElementById('analystStructures');
+  const accepted = data.accepted || [], rejected = data.rejected || [];
+  if (!accepted.length && !rejected.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  const acceptedHtml = accepted.map(st => {
+    const labels = (st.waves || []).map(w => w.label).join(' → ');
+    // The readings that were ALSO legal on these swings and lost on
+    // score. Shown because a preference nobody can see is
+    // indistinguishable from a rule, and this one is a preference: the
+    // hard rules accepted every reading listed here, and one was chosen.
+    const others = (st.alternatives || [])
+      .map(a => `${a.structure} ${a.labels}`).join(', ');
+    return `<div class="signal accepted"><div class="row"><span class="k">${escapeHtml(st.structure)}</span>`
+      + `<span class="v">${escapeHtml(labels)}${st.partial ? ' · still forming' : ''}</span></div>`
+      + `<div class="row"><span class="k">Degree</span><span class="v">${st.deviation_pct}% swing</span></div>`
+      + (others ? `<div class="hint">Also legal on these swings: ${escapeHtml(others)} — `
+          + `this reading was preferred.</div>` : '')
+      + (st.note ? `<div class="hint">${escapeHtml(st.note)}</div>` : '') + `</div>`;
+  }).join('');
+  // Rejected structures are shown, not hidden. "The model proposed this and
+  // the rule engine threw it out, for this reason" is the most useful thing
+  // on this panel - it is the proof that validation is doing something.
+  const rejectedHtml = rejected.map(st => `<div class="signal rejected">`
+    + `<div class="row"><span class="k">${escapeHtml(st.structure || 'structure')}</span>`
+    + `<span class="v">rejected</span></div>`
+    + `<div class="hint">${escapeHtml(st.broken_rule ? st.broken_rule + ': ' : '')}`
+    + `${escapeHtml(st.reason || st.notes || '')}</div></div>`).join('');
+  el.innerHTML = acceptedHtml + rejectedHtml;
+}
+
+// The conversation, rendered as a conversation. A run that ends without a
+// count is not a blank - it is a transcript that says where it stopped and
+// what it was in the middle of.
+function renderAnalystChat(transcript) {
+  const wrap = document.getElementById('analystChatWrap');
+  const el = document.getElementById('analystChat');
+  if (!transcript || !transcript.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  el.innerHTML = transcript.map(entry => {
+    if (entry.role === 'system') {
+      return `<div class="turn deadline"><div class="who">Step ${entry.step} · deadline given</div>`
+        + `<div class="body">${escapeHtml(entry.text)}</div></div>`;
+    }
+    if (entry.role === 'tool') {
+      const failed = /^error/i.test(String(entry.result || ''));
+      return `<div class="turn tool"><div class="who">Step ${entry.step} · tool</div>`
+        + `<div class="body">${escapeHtml(entry.name)}(${escapeHtml(formatStepArgs(entry.args))})</div>`
+        + `<div class="meta" style="${failed ? 'color:#fca5a5;' : ''}">→ ${escapeHtml(entry.result)}</div></div>`;
+    }
+    const called = (entry.tool_calls || []).filter(Boolean);
+    const body = entry.text || (called.length ? '' : '(no message)');
+    return `<div class="turn model"><div class="who">Step ${entry.step} · model</div>`
+      + (body ? `<div class="body">${escapeHtml(body)}</div>` : '')
+      + (entry.reasoning ? `<div class="think">${escapeHtml(entry.reasoning)}</div>` : '')
+      + (called.length ? `<div class="meta">calls: ${escapeHtml(called.join(', '))}</div>` : '')
+      + `</div>`;
+  }).join('');
+}
+
+// ---- multi-timeframe ----
+let mtfData = null;
+
+function trendPill(trend) {
+  const cls = trend === 'UP' ? 'up' : trend === 'DOWN' ? 'down' : '';
+  return `<span class="pill ${cls}" style="${cls ? '' : 'background:#2c3140;color:#c7cbd3;'}">`
+    + `${escapeHtml(trend || '—')}</span>`;
+}
+
+function renderMtf(data) {
+  mtfData = data;
+  const verdict = data.verdict || {};
+  document.getElementById('mtfVerdict').style.display = '';
+  document.getElementById('mtfVerdict').innerHTML =
+    `<div class="signal ${verdict.trend === 'UP' ? 'accepted' : verdict.trend === 'DOWN' ? 'rejected' : ''}">`
+    + `<div class="row"><span class="k">Trend</span><span class="v">${trendPill(verdict.trend)}`
+    + ` <span style="color:#8891a3;">${escapeHtml(verdict.conviction || '')}</span></span></div>`
+    + (verdict.headline ? `<div class="body" style="margin:6px 0;">${escapeHtml(verdict.headline)}</div>` : '')
+    + (verdict.expected_move ? `<div class="row"><span class="k">Expected move</span>`
+        + `<span class="v" style="text-align:left;max-width:210px;">${escapeHtml(verdict.expected_move)}</span></div>` : '')
+    + (verdict.invalidation ? `<div class="row"><span class="k">Invalidated at</span>`
+        + `<span class="v" style="color:#f87171;">${escapeHtml(verdict.invalidation)}</span></div>` : '')
+    + ((verdict.agreement || []).length ? `<div class="hint" style="color:#4ade80;">Agrees: `
+        + `${verdict.agreement.map(escapeHtml).join('; ')}</div>` : '')
+    // Conflicts are shown, never smoothed away: a tidy verdict that hid a
+    // disagreeing timeframe would be the most expensive kind of tidy.
+    + ((verdict.conflicts || []).length ? `<div class="hint" style="color:#fbbf24;">Conflicts: `
+        + `${verdict.conflicts.map(escapeHtml).join('; ')}</div>` : '')
+    + `</div>`;
+
+  const frames = data.timeframes || [];
+  document.getElementById('mtfFramesWrap').style.display = frames.length ? '' : 'none';
+  document.getElementById('mtfFrames').innerHTML = frames.map((f, i) => {
+    const targets = ((f.projection || {}).targets) || [];
+    // The percentage next to a target is a MEASURED base rate from that
+    // chart's own swings, so the sample size travels with it.
+    const odds = targets.map(t => `${t.price}${t.probability !== null && t.probability !== undefined
+      ? ` <span style="color:#8891a3;">${Math.round(t.probability * 100)}%</span>` : ''}`).join(' · ');
+    const sample = (f.projection || {}).odds ? (f.projection.odds.sample_size + ' swings') : '';
+    return `<div class="signal ${f.error ? 'rejected' : 'accepted'}" data-frame="${i}"
+              style="cursor:pointer;">`
+      + `<div class="row"><span class="k">${escapeHtml(f.timeframe)}`
+      + `${f.reused ? ' <span style="color:#60a5fa;">cached</span>' : ''}</span>`
+      + `<span class="v">${f.error ? 'failed' : f.structures + ' structure(s), '
+          + Math.round(((f.coverage || {}).covered_fraction || 0) * 100) + '%'}</span></div>`
+      + (f.error ? `<div class="hint">${escapeHtml(f.error)}</div>` : '')
+      + (f.summary ? `<div class="hint">${escapeHtml(f.summary)}</div>` : '')
+      + (targets.length ? `<div class="hint">Next ${escapeHtml((f.projection || {}).next_label || '')}: `
+          + `${odds}${sample ? ` <span style="color:#6b7383;">(base rate over ${sample})</span>` : ''}</div>` : '')
+      + `</div>`;
+  }).join('');
+
+  document.querySelectorAll('#mtfFrames [data-frame]').forEach(el => {
+    el.addEventListener('click', () => drawMtfFrame(Number(el.dataset.frame)));
+  });
+
+  const analysis = verdict.technical_analysis || '';
+  document.getElementById('mtfAnalysisWrap').style.display = analysis ? '' : 'none';
+  document.getElementById('mtfAnalysis').textContent = analysis;
+}
+
+// The chart is shared with the analyst tab, so drawing a timeframe here
+// reuses exactly the same renderer - one count looks the same wherever it
+// came from.
+async function drawMtfFrame(index) {
+  const frame = (mtfData && mtfData.timeframes || [])[index];
+  if (!frame) return;
+  ensureAnalystChart();
+  const statusEl = document.getElementById('mtfStatus');
+  statusEl.textContent = `Loading ${frame.timeframe} candles…`;
+  try {
+    const params = new URLSearchParams({
+      source: document.getElementById('source').value,
+      symbol: normalizeSymbol(document.getElementById('symbol').value),
+      timeframe: frame.timeframe,
+      limit: document.getElementById('limit').value,
+      cycles: document.getElementById('cycles').value,
+    });
+    const resp = await fetchWithTimeout('/api/run?' + params.toString(), {}, 120000);
+    const data = await resp.json();
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Could not load candles.'; return; }
+    analystSeries.setData(data.candles);
+    if (data.candles.length) {
+      analystFirstTime = data.candles[0].time;
+      analystLastTime = data.candles[data.candles.length - 1].time;
+    }
+    drawAnalystCount(frame.accepted);
+    drawAnalystProjection(frame.projection);
+    analystChart.timeScale().fitContent();
+    statusEl.textContent = `Showing ${frame.timeframe}.`;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error loading candles.';
+  }
+}
+
+// ---- background jobs -------------------------------------------------
+// A multi-timeframe run was measured at 12m13s on the real deploy: the
+// server finished and answered correctly, and the phone had dropped that
+// connection minutes earlier, so the page showed "Load failed" AFTER the
+// tokens were spent. No timeout setting fixes that - a twelve-minute HTTP
+// response is not something a mobile browser behind a CDN will hold open.
+// So the POST now starts a job and returns in milliseconds, and this code
+// follows it: each poll is a short request that can fail and be retried
+// without costing the run, because the run is on the server.
+const JOB_POLL_MS = 2500;
+// A poll failing is not the run failing. Only give up after this many
+// CONSECUTIVE failures - a phone changing cells should not lose an
+// analysis that is still being computed.
+const JOB_MAX_CONSECUTIVE_POLL_FAILURES = 12;
+
+function jobKey(kind) { return 't3_job_' + kind; }
+function rememberJob(kind, jobId) { try { localStorage.setItem(jobKey(kind), jobId); } catch (e) {} }
+function forgetJob(kind) { try { localStorage.removeItem(jobKey(kind)); } catch (e) {} }
+function rememberedJob(kind) { try { return localStorage.getItem(jobKey(kind)); } catch (e) { return null; } }
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function renderJobLog(el, lines) {
+  el.innerHTML = lines.map(l => `<div>${escapeHtml(l.text)}</div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+// Follows a job to completion. `onSnapshot` is called on every poll with
+// the accumulated progress lines so the page can show what the model is
+// doing right now instead of a spinner that means "working" and "hung"
+// alike. Resolves with the result; throws with the reason on failure.
+async function followJob(kind, jobId, onSnapshot) {
+  let seen = 0;
+  let lines = [];
+  let failures = 0;
+  for (;;) {
+    let snap = null;
+    try {
+      const resp = await fetchWithTimeout(
+        `/api/ai/job?job_id=${encodeURIComponent(jobId)}&since=${seen}`, {}, 45000);
+      if (resp.status === 404) {
+        forgetJob(kind);
+        // Marked so the retry branch below lets it through: a job the
+        // server has never heard of will not appear on the next poll, and
+        // retrying it twelve times only delays saying so.
+        const gone = new Error((await resp.json()).detail || 'Unknown job.');
+        gone.__jobGone = true;
+        throw gone;
+      }
+      snap = await resp.json();
+      failures = 0;
+    } catch (e) {
+      if (e.__jobGone) throw e;
+      failures += 1;
+      if (failures >= JOB_MAX_CONSECUTIVE_POLL_FAILURES) {
+        throw new Error('Lost contact with the server while the run was in progress. '
+          + 'The run itself continues there — reopen this tab to pick it up.');
+      }
+      await sleep(JOB_POLL_MS);
+      continue;
+    }
+    lines = lines.concat(snap.progress || []);
+    seen = snap.progress_total !== undefined ? snap.progress_total : seen;
+    onSnapshot(snap, lines);
+    if (snap.status === 'done') { forgetJob(kind); return snap.result; }
+    if (snap.status === 'error') { forgetJob(kind); throw new Error(snap.error || 'The run failed.'); }
+    await sleep(JOB_POLL_MS);
+  }
+}
+
+// Starts a job, or attaches to the identical one already running. The
+// server does the joining (see jobs.find_running) - two taps must not buy
+// the same four analyst runs twice.
+async function startJob(kind, path, body) {
+  const resp = await fetchWithTimeout(path, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  }, 45000);
+  const data = await resp.json();
+  if (!resp.ok) throw new Error(data.detail || 'Could not start the run.');
+  rememberJob(kind, data.job_id);
+  return data;
+}
+
+// Marks a tab whose background run has produced something while the user
+// was looking elsewhere. Cleared when that tab is opened.
+function flagTab(tab) {
+  const btn = document.querySelector(`#tabs button[data-tab="${tab}"]`);
+  if (btn && !btn.classList.contains('active')) btn.classList.add('has-news');
+}
+
+function elapsed(snap) {
+  const secs = Math.round(snap.elapsed_seconds || 0);
+  return secs < 60 ? `${secs}s` : `${Math.floor(secs / 60)}m ${secs % 60}s`;
+}
+
+// ---- the Claude tab: the whole history, counted -----------------------
+// Its own tab and its own storage key rather than another row in the
+// analyst's list: two readings of one instrument are only useful if you
+// can hold them side by side, and a shared key means the newer one
+// silently replaces the older.
+//
+// The first version of this tab drew wave lines over an empty chart -
+// nothing had ever fetched the candles it was labelling, and the
+// aggregation that was meant to supply them was dividing by the wrong bar
+// length and discarding every bucket. Hence Build: one press fetches,
+// files and counts every timeframe, and the chart is drawn on the bars the
+// count was actually made on.
+let claudeFrames = [];
+let claudeKnown = ['5m', '15m', '1h', '4h'];
+let claudeActive = null;
+let claudeBuilding = false;
+
+function claudeSymbol() {
+  return normalizeSymbol(document.getElementById('claudeSymbol').value) || 'INJUSDT';
+}
+
+async function loadClaudeTimeframes(preferred) {
+  const statusEl = document.getElementById('claudeStatus');
+  ensureAnalystChart();
+  try {
+    const resp = await fetchWithTimeout(
+      `/api/claude/timeframes?symbol=${encodeURIComponent(claudeSymbol())}`, {}, 30000);
+    if (!resp.ok) { statusEl.textContent = await parseErrorDetail(resp); return; }
+    const data = await resp.json();
+    claudeFrames = data.timeframes || [];
+    if ((data.known_timeframes || []).length) claudeKnown = data.known_timeframes;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Could not load the timeframe list.';
+    return;
+  }
+  renderClaudeTimeframes();
+  renderClaudeContext();
+  const want = preferred || claudeActive;
+  const has = tf => claudeFrames.some(f => f.timeframe === tf);
+  if (claudeFrames.length) {
+    drawClaudeTimeframe(want && has(want) ? want : claudeFrames[0].timeframe);
+  } else if (!claudeBuilding) {
+    statusEl.textContent = `Nothing counted for ${claudeSymbol()} yet — press Build.`;
+  }
+}
+
+// Every timeframe a build covers gets a button, whether or not it has a
+// count yet. The old version showed only the ones already stored, which
+// meant the tab offered nothing at all before the first run and gave no
+// way to see which degrees were still missing.
+function renderClaudeTimeframes() {
+  const row = document.getElementById('claudeTfRow');
+  const byTf = {};
+  claudeFrames.forEach(f => { byTf[f.timeframe] = f; });
+  const order = claudeKnown.concat(
+    claudeFrames.map(f => f.timeframe).filter(tf => claudeKnown.indexOf(tf) === -1));
+  row.innerHTML = order.map(tf => {
+    const frame = byTf[tf];
+    const bars = frame ? ` <span style="opacity:.6;">${frame.candles}</span>` : '';
+    const style = tf === claudeActive ? ' style="outline:1px solid #38bdf8;"'
+      : (frame ? '' : ' style="opacity:.45;"');
+    return `<button class="panel-btn" data-claude-tf="${escapeHtml(tf)}"${style}>`
+      + `${escapeHtml(tf)}${bars}</button>`;
+  }).join('');
+  row.querySelectorAll('[data-claude-tf]').forEach(btn => {
+    btn.addEventListener('click', () => drawClaudeTimeframe(btn.dataset.claudeTf));
+  });
+}
+
+// The cross-timeframe picture, which is the part a single chart cannot
+// show: a five-wave advance on 5m inside a 4h wave 4 is a bounce, and the
+// only way to see that is to have all four in front of you at once.
+function renderClaudeContext() {
+  const wrap = document.getElementById('claudeContextWrap');
+  const el = document.getElementById('claudeContext');
+  if (!claudeFrames.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  el.innerHTML = claudeFrames.map(f => {
+    const cover = (f.coverage || {}).covered_fraction;
+    return `<div class="signal"${f.timeframe === claudeActive ? ' style="border-color:#38bdf8;"' : ''}>`
+      + `<div class="row"><span class="k">${escapeHtml(f.timeframe)}</span>`
+      + `<span class="v">${f.candles} bars · ${f.structures} structure(s) · `
+      + `${f.subwaves || 0} subwaves${cover !== undefined ? ' · ' + Math.round(cover * 100) + '% labelled' : ''}`
+      + `</span></div>`
+      + (f.next_label
+          ? `<div class="row"><span class="k">Next</span><span class="v" style="color:#f0abfc;">`
+            + `wave ${escapeHtml(String(f.next_label))}`
+            + (f.primary_target !== undefined && f.primary_target !== null
+                ? ` → ${escapeHtml(String(f.primary_target))}` : '')
+            + `</span></div>`
+          : '')
+      + (f.invalidation !== undefined && f.invalidation !== null
+          ? `<div class="row"><span class="k">Fails at</span><span class="v" style="color:#ef5350;">`
+            + `${escapeHtml(String(f.invalidation))}</span></div>` : '')
+      + (f.summary ? `<div class="hint">${escapeHtml(f.summary)}</div>` : '')
+      + `</div>`;
+  }).join('');
+}
+
+// Subwaves in a dimmer shade of their parent's colour and one pixel thin.
+// They have to be visibly SUBORDINATE: drawn at the same weight as the
+// count above them, a chart with 40 of them reads as 40 competing waves.
+const SUBWAVE_COLOR = '#4b6b86';
+
+function drawClaudeSubwaves(subwaves) {
+  if (!subwaves || !subwaves.length) return [];
+  const byParent = {};
+  subwaves.forEach(s => {
+    const key = `${s.parent_label}@${s.parent_start_time}`;
+    (byParent[key] = byParent[key] || []).push(s);
+  });
+  const marks = [];
+  Object.values(byParent).forEach(group => {
+    group.sort((a, b) => a.start_time - b.start_time);
+    const line = analystChart.addLineSeries({
+      color: SUBWAVE_COLOR, lineWidth: 1, lastValueVisible: false,
+      priceLineVisible: false, crosshairMarkerVisible: false,
+    });
+    line.setData([{ time: group[0].start_time, value: group[0].start_price }]
+      .concat(group.map(s => ({ time: s.end_time, value: s.end_price }))));
+    analystOverlays.push(line);
+    group.forEach(s => {
+      marks.push({
+        time: s.end_time, position: s.direction === 'UP' ? 'aboveBar' : 'belowBar',
+        color: SUBWAVE_COLOR, shape: 'circle', text: s.label,
+      });
+    });
+  });
+  return marks;
+}
+
+async function drawClaudeTimeframe(timeframe) {
+  const statusEl = document.getElementById('claudeStatus');
+  claudeActive = timeframe;
+  renderClaudeTimeframes();
+  renderClaudeContext();
+  ensureAnalystChart();
+  statusEl.textContent = `Loading ${timeframe}…`;
+  let data;
+  try {
+    const params = new URLSearchParams({ symbol: claudeSymbol(), timeframe });
+    const resp = await fetchWithTimeout('/api/claude/chart?' + params.toString(), {}, 60000);
+    data = await resp.json();
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Could not load the chart.'; return; }
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error loading the chart.';
+    return;
+  }
+
+  analystSeries.setData(data.candles || []);
+  if ((data.candles || []).length) {
+    analystFirstTime = data.candles[0].time;
+    analystLastTime = data.candles[data.candles.length - 1].time;
+  }
+  // drawAnalystCount clears the overlays and sets the top-level markers,
+  // so the subwave markers have to be merged in AFTER it, not before -
+  // setMarkers replaces, it does not append.
+  drawAnalystCount(data.accepted);
+  const subMarks = drawClaudeSubwaves(data.subwaves);
+  if (subMarks.length) {
+    const all = [];
+    (data.accepted || []).forEach(st => (st.waves || []).forEach(w => all.push({
+      time: w.end_time, position: w.direction === 'UP' ? 'aboveBar' : 'belowBar',
+      color: structureColor(st.structure), shape: 'circle', text: w.label,
+    })));
+    analystSeries.setMarkers(all.concat(subMarks).sort((a, b) => a.time - b.time));
+  }
+  drawAnalystProjection(data.projection);
+  if (data.invalidation !== undefined && data.invalidation !== null) {
+    analystOverlays.push({ __priceLine: analystSeries.createPriceLine({
+      price: data.invalidation, color: '#ef5350', lineWidth: 1, lineStyle: 1,
+      title: 'count fails',
+    }) });
+  }
+  analystChart.timeScale().fitContent();
+
+  renderAnalystStructures(data);   // shares the analyst tab's renderer
+  const wrap = document.getElementById('claudeStructuresWrap');
+  wrap.style.display = 'none';     // ...but shown in THIS tab's own panel
+  document.getElementById('claudeStructures').innerHTML =
+    document.getElementById('analystStructures').innerHTML;
+  if ((data.accepted || []).length || (data.rejected || []).length) wrap.style.display = '';
+
+  const cover = (data.coverage || {}).covered_fraction;
+  statusEl.textContent = `${(data.candles || []).length} bars · `
+    + `${(data.accepted || []).length} structure(s) · ${(data.subwaves || []).length} subwaves`
+    + `${cover !== undefined ? ' · ' + Math.round(cover * 100) + '% labelled' : ''}`
+    + `${data.deviation_pct ? ' · ' + data.deviation_pct + '% swing' : ''}`
+    + `${data.note ? ' — ' + data.note : ''}`;
+
+  renderClaudeForecast(data);
+  document.getElementById('claudeReadWrap').style.display =
+    (data.summary || data.reading) ? '' : 'none';
+  document.getElementById('claudeRead').innerHTML =
+    (data.analysed_at ? `<div class="row"><span class="k">Counted</span>`
+      + `<span class="v">${fmtTime(data.analysed_at)}</span></div>` : '')
+    + (data.summary ? `<div class="row"><span class="k">Where we are</span>`
+        + `<span class="v" style="text-align:left;max-width:210px;">${escapeHtml(data.summary)}</span></div>` : '')
+    + (data.reading ? `<div class="hint">${escapeHtml(data.reading)}</div>` : '')
+    + (data.reasoning ? `<div class="hint">${escapeHtml(data.reasoning)}</div>` : '');
+}
+
+// The forecast, spelled out. A target with no odds beside it reads as a
+// promise; the odds here are measured off this chart's OWN completed
+// swings - the share of them that travelled at least that far - and say so.
+function renderClaudeForecast(data) {
+  const wrap = document.getElementById('claudeForecastWrap');
+  const el = document.getElementById('claudeForecast');
+  const projection = data.projection;
+  const zone = data.correction_zone;
+  if (!projection && !zone && (data.invalidation === undefined || data.invalidation === null)) {
+    wrap.style.display = 'none';
+    return;
+  }
+  wrap.style.display = '';
+  let html = '';
+  if (!projection || !projection.next_label) {
+    // Said out loud rather than left as a gap. A chart whose newest
+    // structure is a FINISHED correction has no wave being projected -
+    // there is no Fibonacci formula for the first leg of the next one -
+    // and an empty panel reads as a rendering fault instead of as that.
+    html += `<div class="hint">No wave is being projected here: the newest structure on this `
+      + `timeframe is complete, and the first leg of whatever follows it has no Fibonacci `
+      + `formula to project from. The level below is still live.</div>`;
+  }
+  if (projection && projection.next_label) {
+    html += `<div class="row"><span class="k">Wave now forming</span>`
+      + `<span class="v" style="color:#f0abfc;">${escapeHtml(String(projection.next_label))}</span></div>`
+      + `<div class="row"><span class="k">From</span><span class="v">${escapeHtml(String(projection.from_price))}</span></div>`
+      + `<div class="row"><span class="k">Basis</span><span class="v" style="text-align:left;max-width:200px;">`
+      + `${escapeHtml(projection.basis || '')}</span></div>`;
+    (projection.targets || []).forEach(t => {
+      // The base rate is measured off this chart's own completed swings -
+      // the share of them that travelled at least this far - not supplied
+      // by anything that had an opinion about the trade.
+      const odds = t.probability !== undefined && t.probability !== null
+        ? ` <span style="opacity:.7;">${Math.round(t.probability * 100)}% of past swings reached it</span>` : '';
+      html += `<div class="row"><span class="k">${t.primary ? '★ ' : ''}${escapeHtml(String(t.ratio))}</span>`
+        + `<span class="v">${escapeHtml(String(t.price))}${odds}</span></div>`;
+    });
+    if (projection.odds_note) html += `<div class="hint">${escapeHtml(projection.odds_note)}</div>`;
+  }
+  if (zone && (zone.levels || []).length) {
+    html += `<div class="row"><span class="k">Correction zone</span>`
+      + `<span class="v" style="text-align:left;max-width:200px;">${escapeHtml(zone.basis || '')}</span></div>`;
+    zone.levels.forEach(l => {
+      html += `<div class="row"><span class="k">${escapeHtml(String(l.ratio))}</span>`
+        + `<span class="v">${escapeHtml(String(l.price))}</span></div>`;
+    });
+    html += `<div class="row"><span class="k">Wave 4 low</span>`
+      + `<span class="v">${escapeHtml(String(zone.wave_four_low))}</span></div>`;
+  }
+  if (data.invalidation !== undefined && data.invalidation !== null) {
+    html += `<div class="row"><span class="k">Count fails at</span>`
+      + `<span class="v" style="color:#ef5350;">${escapeHtml(String(data.invalidation))}</span></div>`;
+  }
+  el.innerHTML = html;
+}
+
+// Follows a build to the end. Separate from the button handler so a page
+// reload that lands mid-build re-attaches to the same job instead of
+// starting a second one against the same exchange.
+async function watchClaudeJob(jobId) {
+  const statusEl = document.getElementById('claudeStatus');
+  const logEl = document.getElementById('claudeLog');
+  const btn = document.getElementById('claudeBuild');
+  claudeBuilding = true;
+  btn.disabled = true;
+  logEl.style.display = '';
+  try {
+    const result = await followJob('claude', jobId, (snap, lines) => {
+      renderJobLog(logEl, lines);
+      statusEl.textContent = `Building… ${elapsed(snap)}`;
+    });
+    const done = (result.timeframes || []).length;
+    const failed = result.errors || [];
+    statusEl.textContent = `Counted ${done} timeframe(s)`
+      + (failed.length ? ` — ${failed.map(e => e.timeframe + ': ' + e.error).join('; ')}` : '');
+    flagTab('claude');
+    claudeBuilding = false;
+    await loadClaudeTimeframes(claudeActive);
+  } catch (e) {
+    statusEl.textContent = e.message || 'The build failed.';
+  } finally {
+    claudeBuilding = false;
+    btn.disabled = false;
+  }
+}
+
+async function buildClaude() {
+  if (claudeBuilding) return;
+  const statusEl = document.getElementById('claudeStatus');
+  document.getElementById('claudeLog').innerHTML = '';
+  const limit = Math.max(200, Math.min(5000,
+    parseInt(document.getElementById('claudeLimit').value, 10) || 1500));
+  statusEl.textContent = 'Fetching from Bybit and counting…';
+  let started;
+  try {
+    started = await startJob('claude', '/api/claude/build', { symbol: claudeSymbol(), limit });
+  } catch (e) {
+    statusEl.textContent = e.message || 'Could not start the build.';
+    return;
+  }
+  await watchClaudeJob(started.job_id);
+}
+
+document.getElementById('claudeBuild').addEventListener('click', buildClaude);
+document.getElementById('claudeSymbol').addEventListener('change', () => {
+  claudeActive = null;
+  loadClaudeTimeframes();
+});
+
+// ---- saved counts, per timeframe -------------------------------------
+// The analyst tab used to show exactly one count: whatever had just been
+// run. A multi-timeframe pass computes four, saves all four, and the tab
+// forgot them the moment it was reopened. This panel is the list of what
+// is actually stored, so the tab accumulates instead of replacing.
+let savedCounts = [];
+
+async function loadSavedCounts() {
+  const source = document.getElementById('source').value;
+  if (source === 'live') return;      // live has its own AI overlay already
+  try {
+    const params = new URLSearchParams({
+      source, symbol: normalizeSymbol(document.getElementById('symbol').value),
+    });
+    const resp = await fetchWithTimeout('/api/ai/saved?' + params.toString(), {}, 30000);
+    if (!resp.ok) return;
+    const body = await resp.json();
+    savedCounts = body.timeframes || [];
+    renderSavedCounts();
+  } catch (e) { /* a list that cannot be fetched is not worth an error banner */ }
+}
+
+function renderSavedCounts() {
+  const wrap = document.getElementById('analystSavedWrap');
+  const el = document.getElementById('analystSaved');
+  if (!savedCounts.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  el.innerHTML = savedCounts.map((row, i) => {
+    const cover = (row.coverage || {}).covered_fraction;
+    const next = row.projection && row.projection.next_label;
+    return `<div class="signal accepted" data-saved="${i}" style="cursor:pointer;">`
+      + `<div class="row"><span class="k">${escapeHtml(row.timeframe)}</span>`
+      + `<span class="v">${row.structures} structure(s)`
+      + `${cover !== undefined ? ' · ' + Math.round(cover * 100) + '% labelled' : ''}</span></div>`
+      + `<div class="row"><span class="k">Analysed</span>`
+      + `<span class="v">${fmtTime(row.analysed_at)}</span></div>`
+      + (next ? `<div class="row"><span class="k">Expects next</span>`
+          + `<span class="v" style="color:#f0abfc;">wave ${escapeHtml(String(next))}</span></div>` : '')
+      + (row.summary ? `<div class="hint">${escapeHtml(row.summary)}</div>` : '')
+      + `</div>`;
+  }).join('');
+  el.querySelectorAll('[data-saved]').forEach(node => {
+    node.addEventListener('click', () => drawSavedCount(Number(node.dataset.saved)));
+  });
+}
+
+// Draws a stored count on the analyst chart, fetching the candles it
+// belongs to. The count itself is never recomputed - this is the whole
+// point of the panel.
+async function drawSavedCount(index) {
+  const row = savedCounts[index];
+  if (!row) return;
+  ensureAnalystChart();
+  const statusEl = document.getElementById('analystStatus');
+  statusEl.textContent = `Loading ${row.timeframe} candles…`;
+  try {
+    const params = new URLSearchParams({
+      source: document.getElementById('source').value,
+      symbol: normalizeSymbol(document.getElementById('symbol').value),
+      timeframe: row.timeframe,
+      limit: document.getElementById('limit').value,
+      cycles: document.getElementById('cycles').value,
+    });
+    const resp = await fetchWithTimeout('/api/run?' + params.toString(), {}, 120000);
+    const data = await resp.json();
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Could not load candles.'; return; }
+    analystSeries.setData(data.candles);
+    if (data.candles.length) {
+      analystFirstTime = data.candles[0].time;
+      analystLastTime = data.candles[data.candles.length - 1].time;
+    }
+    drawAnalystCount(row.accepted);
+    drawAnalystProjection(row.projection);
+    analystChart.timeScale().fitContent();
+    statusEl.textContent = `Showing the saved ${row.timeframe} count from ${fmtTime(row.analysed_at)}.`;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error loading candles.';
+  }
+}
+
+// Follows an already-started multi-timeframe job to its end. Split out
+// from the button handler because the same code has to run when a reload
+// reattaches to a job that was already in flight.
+async function watchMtfJob(jobId) {
+  const statusEl = document.getElementById('mtfStatus');
+  const progressEl = document.getElementById('mtfProgress');
+  document.getElementById('mtfProgressWrap').style.display = '';
+  try {
+    const data = await followJob('mtf', jobId, (snap, lines) => {
+      renderJobLog(progressEl, lines);
+      const last = lines.length ? lines[lines.length - 1].text : 'starting…';
+      statusEl.textContent = `Running for ${elapsed(snap)} — ${last}`;
+    });
+    ensureAnalystChart();
+    mtfShowing = true;
+    renderMtf(data);
+    // A multi-timeframe pass just saved four counts - the analyst tab's
+    // list is what makes them findable afterwards.
+    loadSavedCounts();
+    flagTab('mtf');
+    statusEl.textContent = data.note
+      || `Recomputed ${(data.recomputed || []).join(', ') || 'nothing'}.`;
+  } catch (e) {
+    statusEl.textContent = e.message || 'The multi-timeframe run failed.';
+    flagTab('mtf');
+  }
+}
+
+// The last finished verdict for this instrument, fetched from the server.
+// This is the other half of surviving a dropped connection: the run that
+// completed while the page was gone is still here, and showing it costs
+// nothing. Never overwrites a verdict already on screen.
+let mtfShowing = false;
+async function loadSavedMtf() {
+  if (mtfShowing || rememberedJob('mtf')) return;
+  const statusEl = document.getElementById('mtfStatus');
+  const source = document.getElementById('source').value;
+  if (source === 'live') return;
+  try {
+    const resp = await fetchWithTimeout(
+      `/api/ai/multi/saved?source=${encodeURIComponent(source)}`
+      + `&symbol=${encodeURIComponent(normalizeSymbol(document.getElementById('symbol').value))}`,
+      {}, 30000);
+    if (!resp.ok) return;
+    const body = await resp.json();
+    if (!body.saved) return;
+    ensureAnalystChart();
+    renderMtf(body.saved);
+    const when = body.analysed_at ? fmtTime(body.analysed_at) : 'earlier';
+    statusEl.textContent = `Showing the saved verdict from ${when}. `
+      + 'Press Analyse to bring it up to date — unchanged timeframes are reused, not repaid for.';
+  } catch (e) { /* a saved verdict that cannot be fetched is not an error worth showing */ }
+}
+
+// A reload, a locked phone or a closed tab must not orphan a run that is
+// still going. The job id is remembered locally, so the page reattaches to
+// the run and picks up its progress where it left off.
+function resumeJobs() {
+  const mtf = rememberedJob('mtf');
+  if (mtf) { mtfShowing = true; watchMtfJob(mtf); }
+  const analyst = rememberedJob('analyst');
+  if (analyst) watchAnalystJob(analyst);
+  const claude = rememberedJob('claude');
+  if (claude) watchClaudeJob(claude);
+}
+
+document.getElementById('runMtf').addEventListener('click', async () => {
+  const statusEl = document.getElementById('mtfStatus');
+  const source = document.getElementById('source').value;
+  if (source === 'live') {
+    statusEl.textContent = 'Switch to Synthetic or Bybit (history) — this counts loaded histories.';
+    return;
+  }
+  ensureAnalystChart();
+  statusEl.textContent = 'Starting… cached timeframes are skipped.';
+  try {
+    const started = await startJob('mtf', '/api/ai/multi/start', {
+      api_key: aiKey(), model: aiModel(), base_url: aiBaseUrl(), timeout: aiTimeout(),
+      reasoning_effort: aiEffort(), thinking: aiThinking(), source,
+      symbol: normalizeSymbol(document.getElementById('symbol').value),
+      limit: Number(document.getElementById('limit').value),
+      cycles: Number(document.getElementById('cycles').value),
+      max_steps: Number(document.getElementById('analystSteps').value),
+    });
+    if (started.joined) {
+      statusEl.textContent = 'A run for this instrument is already in progress — following it '
+        + 'rather than paying for the same analysis twice.';
+    }
+    await watchMtfJob(started.job_id);
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error running the multi-timeframe analysis.';
+  }
+});
+
+document.getElementById('clearMtf').addEventListener('click', async () => {
+  const statusEl = document.getElementById('mtfStatus');
+  try {
+    const resp = await fetchWithTimeout('/api/ai/multi/clear', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: document.getElementById('source').value,
+                             symbol: normalizeSymbol(document.getElementById('symbol').value) }),
+    }, 30000);
+    const data = await resp.json();
+    statusEl.textContent = `Forgot ${data.cleared} saved analysis/analyses. The next run recomputes everything.`;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error clearing the cache.';
+  }
+});
+
+// Everything the analyst tab shows once a run has produced an answer.
+// Split out from the button handler so a reload that reattaches to a job
+// already in flight renders it exactly the same way.
+function applyAnalystResult(data) {
+  const statusEl = document.getElementById('analystStatus');
+  ensureAnalystChart();
+  analystSeries.setData(data.candles);
+  if (data.candles.length) {
+    analystFirstTime = data.candles[0].time;
+    analystLastTime = data.candles[data.candles.length - 1].time;
+  }
+  drawAnalystCount(data.accepted);
+  drawAnalystProjection(data.projection);
+  analystChart.timeScale().fitContent();
+  renderAnalystStructures(data);
+  renderAnalystSteps(data.steps);
+  renderAnalystChat(data.transcript);
+
+  const cover = data.coverage || {};
+  const accepted = (data.accepted || []).length;
+  // A run that stalled part way still did real work, and the transcript of
+  // that work is information. Say what happened rather than showing an
+  // empty result that reads like a finished analysis.
+  statusEl.textContent = data.error
+    ? `Stopped after ${data.steps_used} step(s) — see below. Partial work is still shown.`
+    : `${accepted} structure(s) accepted, ${(data.rejected || []).length} rejected, `
+      + `${cover.covered_fraction !== undefined
+            ? Math.round(cover.covered_fraction * 100) + '% of the chart labelled, ' : ''}`
+      + `after ${data.steps_used} step(s).`;
+  document.getElementById('analystSummary').style.display = '';
+  document.getElementById('analystRead').innerHTML =
+    `<div class="row"><span class="k">Model</span><span class="v">${escapeHtml(data.model)}</span></div>`
+    + (data.summary ? `<div class="row"><span class="k">Where we are</span>`
+        + `<span class="v" style="text-align:left;max-width:200px;">${escapeHtml(data.summary)}</span></div>` : '')
+    + (data.reasoning ? `<div class="row"><span class="k">Reasoning</span>`
+        + `<span class="v" style="text-align:left;max-width:200px;">${escapeHtml(data.reasoning)}</span></div>` : '')
+    + (data.projection ? `<div class="row"><span class="k">Next: wave ${escapeHtml(data.projection.next_label)}</span>`
+        + `<span class="v" style="color:#f0abfc;">`
+        + `${(data.projection.targets || []).map(t => t.price).join(' · ')}</span></div>`
+        + `<div class="hint">${escapeHtml(data.projection.basis)} — drawn dashed `
+        + `${data.projection.bars_ahead || 50} candles ahead`
+        + `${data.projection.expected_bars ? ', reaching the target in about '
+             + data.projection.expected_bars + ' of them' : ''}. `
+        + `Computed by the server from the waves already counted, not supplied by the model.</div>` : '')
+    + (data.error ? `<div class="note error" style="margin-top:8px;">${escapeHtml(data.error)}</div>` : '')
+    + (data.note ? `<div class="hint">${escapeHtml(data.note)}</div>` : '')
+    + usageHtml(data.usage);
+}
+
+// What this run consumed and, where the provider publishes a price for the
+// model, what it cost — plus what that same run would cost repeated hourly
+// or every five minutes. The run rate is named rather than assumed:
+// continuous monitoring IS a run rate, and four analyses an hour is a very
+// different bill from twelve.
+function usageHtml(usage) {
+  if (!usage || !usage.total_tokens) return '';
+  const rate = r => r ? `$${r.per_run.toFixed(4)}/run · $${r.per_day.toFixed(2)}/day · `
+    + `$${r.per_month.toFixed(2)}/month` : '';
+  let html = `<div class="row"><span class="k">Tokens</span><span class="v">`
+    + `${usage.total_tokens.toLocaleString()} in ${usage.calls} call(s)`
+    + `${usage.cached_tokens ? ' · ' + usage.cached_tokens.toLocaleString() + ' cached' : ''}`
+    + `</span></div>`;
+  if (usage.cost_usd !== undefined) {
+    html += `<div class="row"><span class="k">This run cost</span>`
+      + `<span class="v">$${usage.cost_usd.toFixed(4)}</span></div>`
+      + `<div class="hint">Repeated once an hour: ${rate(usage.if_run_hourly)}.<br>`
+      + `Repeated every 5 minutes: ${rate(usage.if_run_every_5m)}.<br>`
+      + `Prices read from the provider's own model catalogue, not hardcoded.</div>`;
+  } else if (usage.pricing_known === false) {
+    html += `<div class="hint">The provider publishes no price for this model, so no cost is `
+      + `shown — a made-up number would look like a measurement.</div>`;
+  }
+  return html;
+}
+
+async function watchAnalystJob(jobId) {
+  const statusEl = document.getElementById('analystStatus');
+  const progressEl = document.getElementById('analystProgress');
+  document.getElementById('analystProgressWrap').style.display = '';
+  try {
+    const data = await followJob('analyst', jobId, (snap, lines) => {
+      renderJobLog(progressEl, lines);
+      const last = lines.length ? lines[lines.length - 1].text : 'starting…';
+      statusEl.textContent = `Running for ${elapsed(snap)} — ${last}`;
+    });
+    applyAnalystResult(data);
+    loadSavedCounts();          // the run just added to the list
+    flagTab('analyst');
+  } catch (e) {
+    statusEl.textContent = e.message || 'The analyst run failed.';
+    flagTab('analyst');
+  }
+}
+
+document.getElementById('runAnalyst').addEventListener('click', async () => {
+  const statusEl = document.getElementById('analystStatus');
+  const source = document.getElementById('source').value;
+  if (source === 'live') {
+    statusEl.textContent = 'Switch to Synthetic or Bybit (history) — the analyst works a loaded history, not a live stream.';
+    return;
+  }
+  ensureAnalystChart();
+
+  statusEl.textContent = 'Starting the analyst…';
+  document.getElementById('analystSummary').style.display = 'none';
+  try {
+    const started = await startJob('analyst', '/api/ai/analyst/start', {
+      api_key: aiKey(),
+      model: aiModel(),
+      base_url: aiBaseUrl(),
+      timeout: aiTimeout(),
+      reasoning_effort: aiEffort(),
+      thinking: aiThinking(),
+      source,
+      symbol: normalizeSymbol(document.getElementById('symbol').value),
+      timeframe: document.getElementById('timeframe').value,
+      limit: Number(document.getElementById('limit').value),
+      cycles: Number(document.getElementById('cycles').value),
+      max_steps: Number(document.getElementById('analystSteps').value),
+    });
+    if (started.joined) {
+      statusEl.textContent = 'This exact run is already in progress — following it rather than '
+        + 'paying for the same analysis twice.';
+    }
+    await watchAnalystJob(started.job_id);
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error running the analyst.';
+  }
+});
+
+// ---- AI advisor + labelling (NVIDIA API Catalog) ----
+// Storage keys are provider-scoped: a key left over from a previous
+// provider would be silently forwarded to this one and rejected as
+// invalid, which reads as "the app is broken" rather than "that key is for
+// the wrong service". Bumped on every provider change for that reason.
+const KEY_STORAGE = 't3_openrouter2_key';
+const MODEL_STORAGE = 't3_openrouter2_model';
+const BASE_URL_STORAGE = 't3_openrouter2_base_url';
+const DEFAULT_AI_MODEL = '~openai/gpt-astra-latest';
+const TIMEOUT_STORAGE = 't3_openrouter2_timeout';
+const EFFORT_STORAGE = 't3_openrouter2_effort';
+const THINKING_STORAGE = 't3_openrouter2_thinking';
+const DEFAULT_AI_BASE_URL = 'https://openrouter.ai/api/v1';
+const DEFAULT_AI_TIMEOUT = 180;
+
+function aiKey() {
+  return localStorage.getItem(KEY_STORAGE) || document.getElementById('aiKey').value.trim();
+}
+// The model name travels with every request rather than being baked into
+// the server: a router's catalogue, prices and free tiers change week to
+// week, so the correct model is a property of whose key it is, not of this
+// deployment.
+function aiModel() {
+  return document.getElementById('aiModel').value.trim()
+    || localStorage.getItem(MODEL_STORAGE)
+    || DEFAULT_AI_MODEL;
+}
+// The endpoint is a field for the same reason the model is: neither could
+// be verified from the build sandbox, and neither should need a redeploy.
+function aiBaseUrl() {
+  return document.getElementById('aiBaseUrl').value.trim()
+    || localStorage.getItem(BASE_URL_STORAGE)
+    || DEFAULT_AI_BASE_URL;
+}
+document.getElementById('aiKey').value = localStorage.getItem(KEY_STORAGE) || '';
+document.getElementById('aiModel').value = localStorage.getItem(MODEL_STORAGE) || DEFAULT_AI_MODEL;
+document.getElementById('aiBaseUrl').value = localStorage.getItem(BASE_URL_STORAGE) || DEFAULT_AI_BASE_URL;
+function aiTimeout() {
+  return Number(document.getElementById('aiTimeout').value)
+    || Number(localStorage.getItem(TIMEOUT_STORAGE))
+    || DEFAULT_AI_TIMEOUT;
+}
+document.getElementById('aiTimeout').value =
+  Number(localStorage.getItem(TIMEOUT_STORAGE)) || DEFAULT_AI_TIMEOUT;
+function aiEffort() { return document.getElementById('aiEffort').value; }
+function aiThinking() { return document.getElementById('aiThinking').value; }
+{
+  const saved = localStorage.getItem(THINKING_STORAGE);
+  if (saved !== null) document.getElementById('aiThinking').value = saved;
+}
+// Default to maximum power. `??` rather than `||` on purpose: an empty
+// string is a DELIBERATE choice ("not sent") and must survive a reload,
+// while never having chosen gets the new default.
+document.getElementById('aiEffort').value = localStorage.getItem(EFFORT_STORAGE) ?? 'max';
+
+// Whether the SERVER holds a key. Never the key itself - the endpoint
+// returns a boolean. Without this, an empty field that silently works
+// looks like a bug rather than a configured deployment.
+fetch('/api/ai/config').then(r => r.json()).then(cfg => {
+  if (cfg.server_key) {
+    document.getElementById('serverKeyHint').textContent =
+      'This server already has a key configured — leave the field empty to use it. A key typed here '
+      + 'overrides it and stays in this browser only.';
+  }
+}).catch(() => {});
+
+// Whether saved counts survive a deploy. The default SQLite file lives on
+// the container filesystem, which the host replaces on every deploy -
+// every labelled chart is erased by the next push. That has to be said out
+// loud here, because the only other way to learn it is to lose the work.
+fetch('/api/health').then(r => r.json()).then(h => {
+  if (h.storage_durable === false && h.storage_note) {
+    const el = document.getElementById('serverKeyHint');
+    el.innerHTML += `<div class="note error" style="margin-top:6px;">${escapeHtml(h.storage_note)}</div>`;
+  }
+}).catch(() => {});
+
+document.getElementById('saveKey').addEventListener('click', () => {
+  localStorage.setItem(KEY_STORAGE, document.getElementById('aiKey').value.trim());
+  localStorage.setItem(MODEL_STORAGE, aiModel());
+  localStorage.setItem(BASE_URL_STORAGE, aiBaseUrl());
+  localStorage.setItem(TIMEOUT_STORAGE, String(aiTimeout()));
+  localStorage.setItem(EFFORT_STORAGE, aiEffort());
+  localStorage.setItem(THINKING_STORAGE, aiThinking());
+  document.getElementById('aiStatus').textContent = 'Settings saved in this browser.';
+});
+
+// Connection check. Deliberately its own button: every setup mistake and
+// every slow model produce the same "nothing happened" from a real run, so
+// there has to be a cheap way to ask which one it is.
+document.getElementById('pingAi').addEventListener('click', async () => {
+  const apiKey = aiKey();
+  const statusEl = document.getElementById('pingStatus');
+  statusEl.textContent = 'Sending one tiny request…';
+  try {
+    const resp = await fetchWithTimeout('/api/ai/ping', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      // The user's own timeout, not a hardcoded 60s. A check that gives up
+      // sooner than the real calls do reports a working setup as broken.
+      body: JSON.stringify({ api_key: apiKey, model: aiModel(), base_url: aiBaseUrl(),
+                             timeout: aiTimeout() }),
+    }, aiTimeout() * 1000 + 15000);
+    const data = await resp.json();
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Request failed.'; return; }
+    if (!data.ok) { statusEl.textContent = data.error; return; }
+    // "It works" is not the useful answer. The analyst pays the
+    // time-to-first-token once per step, so that number is what decides
+    // whether a multi-step run is feasible at all.
+    const first = data.seconds_to_first_token;
+    statusEl.innerHTML =
+      `<strong style="color:#4ade80;">Works.</strong> ${escapeHtml(data.model)} started answering in `
+      + `<strong>${first}s</strong>`
+      + (data.reasoning_first ? ' (thinking first, no visible answer yet)' : '')
+      + `.<br>${escapeHtml(data.advice || '')}`;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error during the connection test.';
+  }
+});
+
+// Facts, not a verdict written from an assumption. Every other error path
+// here compresses a failure into one sentence, and "the model did not
+// answer in 180s" is the same sentence whether the cause is a slow model,
+// a queued request, a buffering gateway or a typo in a URL.
+document.getElementById('diagnoseAi').addEventListener('click', async () => {
+  const out = document.getElementById('diagnoseOut');
+  const statusEl = document.getElementById('pingStatus');
+  statusEl.textContent = 'Running both checks…';
+  out.style.display = 'none';
+  try {
+    const resp = await fetchWithTimeout('/api/ai/diagnose', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: aiKey(), model: aiModel(), base_url: aiBaseUrl(), timeout: 45 }),
+    }, 120000);
+    const data = await resp.json();
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Request failed.'; return; }
+    statusEl.textContent = '';
+    out.style.display = '';
+
+    const a = data.access || {};
+    const c = data.chat || {};
+    const row = (k, v) => `<div class="row"><span class="k">${escapeHtml(k)}</span>`
+      + `<span class="v" style="text-align:right;max-width:190px;word-break:break-word;">${escapeHtml(v)}</span></div>`;
+
+    let html = `<div class="signal ${a.ok ? 'accepted' : 'rejected'}">`
+      + `<div class="row"><span class="k">1 · Catalogue (no model)</span>`
+      + `<span class="v">${a.ok ? 'OK in ' + a.seconds + 's' : 'FAILED'}</span></div>`;
+    if (a.ok) {
+      html += row('Models visible', a.model_count);
+      if (a.tool_capable_count) html += row('Support tool calling', a.tool_capable_count);
+      // The one fact that decides whether the AI Analyst can work at all,
+      // taken from the catalogue rather than guessed from the model's name.
+      if (a.model_supports_tools === true) {
+        html += `<div class="hint" style="color:#4ade80;">`
+          + `${escapeHtml(a.checked_model || '')} supports tool calling — the AI Analyst can run.</div>`;
+      } else if (a.model_supports_tools === false) {
+        html += `<div class="hint" style="color:#fca5a5;">`
+          + `${escapeHtml(a.checked_model || 'This model')} does <strong>not</strong> advertise tool `
+          + `calling. Second opinion and whole-history labelling still work; the AI Analyst needs one `
+          + `of the ${a.tool_capable_count} models that do.</div>`;
+        const picks = (a.tool_capable || []).filter(m => m.includes(':free')).slice(0, 8);
+        if (picks.length) {
+          html += `<div class="hint">Free ones that do: ${picks.map(escapeHtml).join(', ')}</div>`;
+        }
+      }
+    } else {
+      html += `<div class="hint">${escapeHtml(a.error || '')}</div>`;
+    }
+    html += `</div>`;
+
+    html += `<div class="signal ${c.status === 200 ? 'accepted' : 'rejected'}">`
+      + `<div class="row"><span class="k">2 · Chat endpoint</span>`
+      + `<span class="v">${c.status !== undefined ? 'HTTP ' + c.status : 'no response'}</span></div>`;
+    if (c.seconds_to_headers !== undefined) html += row('Headers after', c.seconds_to_headers + 's');
+    if (c.seconds_to_first_byte !== undefined) html += row('First body byte', c.seconds_to_first_byte + 's');
+    if (c.failed_after_seconds !== undefined) html += row('Gave up after', c.failed_after_seconds + 's');
+    if (c.looks_like_sse !== undefined) html += row('Real event stream', c.looks_like_sse ? 'yes' : 'no');
+    if (c.bytes_received !== undefined) html += row('Bytes received', c.bytes_received);
+    Object.entries(c.headers || {}).forEach(([k, v]) => html += row(k, v));
+    html += `<div class="hint" style="margin-top:6px;">${escapeHtml(c.verdict || c.error || '')}</div>`;
+    if (c.first_bytes) {
+      html += `<div class="hint" style="white-space:pre-wrap;word-break:break-all;margin-top:6px;`
+        + `border-top:1px solid #232733;padding-top:6px;">${escapeHtml(c.first_bytes)}</div>`;
+    }
+    html += `</div>`;
+
+    // The part that names a cause instead of describing a symptom.
+    const probe = data.probe;
+    if (probe && probe.variants) {
+      html += `<div class="signal"><div class="row"><span class="k">3 · Which settings work</span>`
+        + `<span class="v"></span></div>`;
+      probe.variants.forEach(v => {
+        const when = v.ok ? `${v.seconds_to_first_byte}s`
+          : (v.gave_up_after !== undefined ? `gave up at ${v.gave_up_after}s`
+             : 'HTTP ' + (v.status !== undefined ? v.status : '?'));
+        html += `<div class="row"><span class="k" style="color:${v.ok ? '#4ade80' : '#fca5a5'};">`
+          + `${v.ok ? '✓' : '✗'} ${escapeHtml(v.variant)}</span>`
+          + `<span class="v">${escapeHtml(when)}</span></div>`;
+      });
+      html += `<div class="hint" style="margin-top:6px;">${escapeHtml(probe.verdict || '')}</div></div>`;
+    }
+    out.innerHTML = html;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error during diagnosis.';
+  }
+});
+
+// Ask the catalogue which models can actually run the analyst, and put
+// them in the field as a fallback list. This replaces the loop the user
+// was stuck in: try a model, watch it be busy or lack tool calling, go
+// find another one by hand.
+document.getElementById('fillModels').addEventListener('click', async () => {
+  const statusEl = document.getElementById('pingStatus');
+  statusEl.textContent = 'Asking the catalogue which models support tool calling…';
+  try {
+    const resp = await fetchWithTimeout('/api/ai/diagnose', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: aiKey(), model: aiModel(), base_url: aiBaseUrl(),
+                             timeout: 20, probe: false }),
+    }, 60000);
+    const data = await resp.json();
+    const access = (data || {}).access || {};
+    if (!access.ok) { statusEl.textContent = access.error || 'Could not read the catalogue.'; return; }
+    const capable = access.tool_capable || [];
+    if (!capable.length) {
+      statusEl.textContent = 'This catalogue publishes no tool-calling metadata, so the list cannot '
+        + 'be filled automatically. The analyst may still work — try it.';
+      return;
+    }
+    // Free ones first: they are what the key is for, and a paid id silently
+    // first in the list is a surprise on the invoice rather than a fallback.
+    const free = capable.filter(m => m.includes(':free'));
+    const picked = free.concat(capable.filter(m => !m.includes(':free'))).slice(0, 5);
+    document.getElementById('aiModel').value = picked.join(', ');
+    localStorage.setItem(MODEL_STORAGE, picked.join(', '));
+    statusEl.textContent = `Filled with ${picked.length} tool-calling model(s), `
+      + `${free.length ? 'free ones first' : 'none of them free'}. The router uses the first that answers.`;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error reading the catalogue.';
+  }
+});
+
+document.getElementById('askSignalQuality').addEventListener('click', async () => {
+  const statusEl = document.getElementById('signalQualityStatus');
+  const answerEl = document.getElementById('signal-quality-answer');
+  const source = document.getElementById('source').value;
+  if (source === 'live') {
+    statusEl.textContent = 'Switch to Synthetic or Bybit (history) — this scores a backtest\u2019s own trades.';
+    return;
+  }
+  statusEl.textContent = 'Scoring the open signals against this history\u2026';
+  answerEl.style.display = 'none';
+  try {
+    const resp = await fetchWithTimeout('/api/ai/signal-quality', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: aiKey(), source,
+        symbol: normalizeSymbol(document.getElementById('symbol').value),
+        timeframe: document.getElementById('timeframe').value,
+        limit: Number(document.getElementById('limit').value),
+        cycles: Number(document.getElementById('cycles').value),
+        equity: Number(document.getElementById('equity').value) || 10000,
+        timeout: aiTimeout(),
+      }),
+    }, 180000);
+    const data = await resp.json();
+    // 422 is the honest answer, not a failure: this history cannot support
+    // a probability, and the reason says why.
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Request failed.'; return; }
+
+    statusEl.textContent = '';
+    answerEl.style.display = '';
+    const base = data.context_trades
+      ? Math.round(100 * data.wins_in_context / data.context_trades) : 0;
+    let html = `<div class="row"><span class="k">Learned from</span>`
+      + `<span class="v">${data.context_trades} closed trades, ${data.wins_in_context} green `
+      + `(${base}%)</span></div>`;
+    if (!data.scored.length) {
+      html += `<div class="hint">No open signals to score right now.</div>`;
+    } else {
+      // The base rate sits next to every number on purpose: a 60% that beats
+      // a 55% baseline says something very different from a 60% that does not.
+      html += `<table><tr><th>Signal</th><th>Win probability</th></tr>`
+        + data.scored.map(s => {
+          const p = s.win_probability;
+          const shown = p === null || p === undefined ? '—' : Math.round(p * 100) + '%';
+          const better = p !== null && p !== undefined && p * 100 > base;
+          return `<tr><td>${escapeHtml(s.signal_id)}</td>`
+            + `<td style="color:${better ? '#4ade80' : '#9aa3b2'};">${shown}</td></tr>`;
+        }).join('') + `</table>`
+        + `<div class="hint">Green means above this history's own base rate of ${base}%. `
+        + `Advisory only — nothing here changes what the engine trades.</div>`;
+    }
+    answerEl.innerHTML = html;
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error scoring signals.';
+  }
+});
+
+document.getElementById('askAi').addEventListener('click', async () => {
+  const apiKey = aiKey();
+  const statusEl = document.getElementById('aiStatus');
+  const answerEl = document.getElementById('ai-answer');
+  if (!lastData) { statusEl.textContent = 'Run an analysis first.'; return; }
+
+  const primary = lastData.scenarios[0];
+  const lastSignal = lastData.signals[lastData.signals.length - 1];
+  const context = {
+    symbol: lastData.symbol,
+    primary_scenario: primary ? {
+      probability: primary.probability, status: primary.status,
+      waves: primary.waves.map(w => w.label), invalidation: primary.invalidation,
+    } : null,
+    last_signal: lastSignal ? {
+      wave: lastSignal.wave_label, side: lastSignal.side, decision: lastSignal.decision,
+      confidence: lastSignal.confidence, stop_loss: lastSignal.stop_loss,
+      take_profits: lastSignal.take_profits, reason: lastSignal.reason || lastSignal.rejection_reason,
+    } : null,
+  };
+
+  statusEl.textContent = 'Asking the model…';
+  answerEl.style.display = 'none';
+  try {
+    // Timed out rather than bare fetch: free router models queue, and a
+    // request that hangs forever looks identical to one that failed.
+    const resp = await fetchWithTimeout('/api/ai/advice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_key: apiKey, context, model: aiModel(),
+                             base_url: aiBaseUrl(), timeout: aiTimeout(),
+                             reasoning_effort: aiEffort(), thinking: aiThinking() }),
+    }, 90000);
+    const data = await resp.json();
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Request failed.'; return; }
+    statusEl.textContent = '';
+    answerEl.style.display = '';
+    answerEl.textContent = data.commentary;
+  } catch (e) {
+    statusEl.textContent = 'Network error asking the model.';
+  }
+});
+
+// AI wave labelling. The server owns the pivots and the rules - this only
+// asks, renders whatever survived validation, and says plainly when a
+// proposal was thrown out (and why). A rejected count draws nothing.
+document.getElementById('askAiLabel').addEventListener('click', async () => {
+  const apiKey = aiKey();
+  const statusEl = document.getElementById('aiLabelStatus');
+  const answerEl = document.getElementById('ai-label-answer');
+
+  const source = document.getElementById('source').value;
+  if (source === 'live') {
+    statusEl.textContent = 'Switch to Synthetic or Bybit (history) - labelling runs over a loaded history, not a live stream.';
+    return;
+  }
+
+  statusEl.textContent = 'Asking the model for a count over the whole history…';
+  answerEl.style.display = 'none';
+  try {
+    const resp = await fetchWithTimeout('/api/ai/label', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: apiKey,
+        model: aiModel(),
+        base_url: aiBaseUrl(),
+        timeout: aiTimeout(),
+        reasoning_effort: aiEffort(),
+        thinking: aiThinking(),
+        source,
+        symbol: normalizeSymbol(document.getElementById('symbol').value),
+        timeframe: document.getElementById('timeframe').value,
+        limit: Number(document.getElementById('limit').value),
+        cycles: Number(document.getElementById('cycles').value),
+      }),
+    }, 90000);
+    const data = await resp.json();
+    if (!resp.ok) { statusEl.textContent = data.detail || 'Request failed.'; return; }
+
+    answerEl.style.display = '';
+    if (data.valid) {
+      aiLabelWaves = data.waves;
+      statusEl.textContent = `Accepted: ${data.waves.length} waves passed server validation.`;
+      answerEl.innerHTML = `<div class="row"><span class="k">Count</span><span class="v">`
+        + `${data.waves.map(w => w.label).join(' → ')}</span></div>`
+        + `<div class="row"><span class="k">Model</span><span class="v">${data.model}</span></div>`
+        + `<div class="row"><span class="k">Reasoning</span><span class="v" style="text-align:left;max-width:200px;">`
+        + `${data.reasoning || '—'}</span></div>`;
+      if (lastData) applyChartData(lastData);  // redraw with the AI overlay on top
+    } else {
+      aiLabelWaves = [];
+      const why = data.rejected
+        ? `Rejected before any rule check: ${data.reason}`
+        : `Broke a hard Elliott rule (${data.broken_rule}): ${data.reason || ''}`;
+      statusEl.textContent = 'Not drawn - the proposal did not survive validation.';
+      answerEl.innerHTML = `<div class="row"><span class="k">Model</span><span class="v">${data.model}</span></div>`
+        + `<div class="row"><span class="k">Why</span><span class="v" style="text-align:left;max-width:200px;">${why}</span></div>`;
+      if (lastData) applyChartData(lastData);
+    }
+  } catch (e) {
+    statusEl.textContent = e.message || 'Network error asking the model.';
+  }
+});
+
+// ---- symbol autocomplete ----
+// A hand-rolled dropdown, NOT the native HTML datalist element this used
+// to rely on: Mobile Safari (iOS) accepts an input's `list` attribute
+// without any JS error but simply never renders the suggestion popup at
+// all - a long-standing WebKit gap, not a bug in this app's markup. Since
+// the whole point here is "type a letter, see matching coins" on a
+// *phone*, relying on that native element meant the feature silently did
+// nothing for exactly the audience it was built for. This dropdown is
+// plain absolutely-positioned HTML/JS so it works identically everywhere.
+let allSymbols = [];
+
+function renderSymbolSuggestions(filterText) {
+  const box = document.getElementById('symbolSuggestions');
+  const q = normalizeSymbol(filterText);
+  if (!q) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const matches = allSymbols.filter(s => s.includes(q)).slice(0, 30);
+  if (!matches.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  box.innerHTML = matches.map(s => `<div class="symbol-suggestion" data-symbol="${s}"
+    style="padding:8px 10px;cursor:pointer;font-size:13px;border-bottom:1px solid #232733;">${s}</div>`).join('');
+  box.style.display = 'block';
+}
+
+const symbolInputEl = document.getElementById('symbol');
+const symbolSuggestionsEl = document.getElementById('symbolSuggestions');
+
+symbolInputEl.addEventListener('input', (e) => renderSymbolSuggestions(e.target.value));
+symbolInputEl.addEventListener('focus', (e) => { if (e.target.value) renderSymbolSuggestions(e.target.value); });
+
+symbolSuggestionsEl.addEventListener('click', (e) => {
+  const item = e.target.closest('.symbol-suggestion');
+  if (!item) return;
+  symbolInputEl.value = item.dataset.symbol;
+  symbolSuggestionsEl.style.display = 'none';
+});
+
+// mousedown (not blur) fires BEFORE the click on a suggestion, so it never
+// races the tap and hides the dropdown before the selection registers.
+document.addEventListener('mousedown', (e) => {
+  if (e.target !== symbolInputEl && !symbolSuggestionsEl.contains(e.target)) {
+    symbolSuggestionsEl.style.display = 'none';
+  }
+});
+
+// Populates `allSymbols` for the dropdown above. Best-effort: if this
+// fails (e.g. Bybit is unreachable, or the server is still asleep/cold-
+// starting), the symbol field just stays a plain text input - never a
+// hard blocker (see fallback_symbols.py server-side for why it almost
+// never actually comes back empty).
+async function loadSymbolList() {
+  try {
+    const resp = await fetchWithTimeout('/api/symbols', {}, 20000);
+    if (!resp.ok) {
+      const detail = await parseErrorDetail(resp);
+      symbolInputEl.title = `Coin list unavailable: ${detail}`;
+      console.warn('GET /api/symbols failed:', detail);
+      return;
+    }
+    const data = await resp.json();
+    allSymbols = data.symbols;
+    const sourceNote = data.source === 'live' ? '' : ' (Bybit unavailable - showing a static common-symbols list)';
+    symbolInputEl.title = `${data.symbols.length} symbols loaded${sourceNote} - type to filter, or enter any symbol manually`;
+  } catch (e) {
+    symbolInputEl.title = `Coin list unavailable: ${e.message}`;
+    console.warn('GET /api/symbols failed:', e);
+  }
+}
+
+updateSourceUI();
+run();
+loadSymbolList();
+// Reattach to anything that was still running when this page was last
+// closed. A twelve-minute analysis must survive a reload of the page that
+// asked for it.
+resumeJobs();
+</script>
+  <script src="/static/lead_panel.js"></script>
+  <script src="/static/lead_blocks.js"></script>
+  <script src="/static/lead_engine.js"></script>
+</body>
+</html>

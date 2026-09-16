@@ -1,0 +1,44 @@
+{
+  "mode": "replay",
+  "requested_seconds": 1800,
+  "acceptance_passed": false,
+  "exchange_seconds": 1800.001,
+  "messages": 15402,
+  "ingest_ms": {
+    "p50": 0.03359600032126764,
+    "p95": 0.09446300100535154,
+    "max": 2.5936380006896798
+  },
+  "calculation_ms": {
+    "p50": 6.967507000808837,
+    "p95": 8.77752300038992,
+    "max": 16.41643900074996
+  },
+  "cvd_change": -48473.73100000007,
+  "book_synced": {
+    "BTCUSDT": true,
+    "INJUSDT": true
+  },
+  "maximum_feature_rows": 600,
+  "network_latency_ms": null,
+  "note": "Accelerated replay of repository fixture; capture provenance is unverified. Not a live stability test.",
+  "wall_seconds": 25.576,
+  "peak_rss_kib": 66544,
+  "rss_samples_kib": [
+    64880,
+    65520,
+    65904,
+    65904,
+    66032,
+    66160,
+    66160,
+    66288,
+    66288,
+    66416,
+    66416,
+    66416,
+    66544,
+    66544,
+    66544
+  ]
+}

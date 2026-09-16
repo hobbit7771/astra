@@ -1,0 +1,36 @@
+# Dependencies for the T3 Elliott Wave Trading Engine (t3_engine/) - the
+# dashboard, live pipeline, backtester, database layer, etc. This is what
+# Render (and any default "install requirements.txt" flow) will install.
+#
+# The old app.py prototype's dependencies (flask, pandas, numpy,
+# matplotlib, scipy, python-binance, ...) used to live in this file too.
+# They were pinned to old versions with no prebuilt wheel for newer Python
+# releases, so Render tried to compile pandas/numpy from source and failed
+# ("Build aborted: the NumPy Cython headers require Cython 3.0.0 or
+# newer"). app.py doesn't even run as-is (it imports modules that don't
+# exist in this repo), and t3_engine/ never imports any of those packages,
+# so there was no reason for a default install to pull them in at all.
+# They now live in requirements-legacy.txt if anyone wants them back.
+python-dotenv==1.2.3
+httpx==0.28.1
+websockets==17.1
+SQLAlchemy==2.0.52
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+pydantic==2.13.5
+pydantic-settings==2.15.0
+pytest==9.1.1
+pytest-asyncio==1.4.0
+
+# Needed only because this Render service's Start Command is pinned to
+# `gunicorn app:app` (see gunicorn.conf.py + app.py for how that's made to
+# work with our ASGI app). uvicorn alone is all `run_dashboard.py` and
+# `Procfile` need - this is here purely for Render compatibility.
+gunicorn==23.0.0
+
+# PostgreSQL driver. Only needed when T3_DATABASE_URL points at Postgres,
+# which is how saved analyses and the trade journal survive a redeploy:
+# the default SQLite file lives on the container filesystem, and that
+# filesystem is replaced every time the service deploys. See
+# database/session.py's is_durable().
+psycopg[binary]==3.2.12

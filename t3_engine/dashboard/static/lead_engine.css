@@ -1,0 +1,173 @@
+/* Market Lead Engine tab. Its own stylesheet, its own class prefix.
+   Nothing here restyles an existing element: every rule is scoped under
+   #tab-lead or .le-, so loading this file cannot change how any other tab
+   renders. That is the same isolation the backend has, applied to CSS. */
+
+/* Every realtime number is tabular and fixed-width. Proportional digits
+   are why the panel used to shift horizontally as values changed: 5.9470
+   and 5.9510 are different widths in a proportional face, so a column of
+   them breathes in and out once a second. `tabular-nums` makes every
+   digit the same width; `font-feature-settings` is the fallback for
+   engines that want the older spelling. */
+#tab-lead, .le-num, .le-root {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+.le-num { display: inline-block; text-align: right; white-space: nowrap; }
+
+#tab-lead { font-size: 12px; }
+
+#tab-lead .le-head {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding: 8px; border: 1px solid #232733; border-radius: 6px;
+  background: #11151d; margin-bottom: 10px;
+}
+#tab-lead .le-head select, #tab-lead .le-head button { font-size: 12px; }
+#tab-lead .le-price { font-size: 18px; font-weight: 600; color: #e6e9ef; }
+#tab-lead .le-chip {
+  padding: 2px 7px; border-radius: 10px; font-size: 10px; letter-spacing: .04em;
+  border: 1px solid #2c3140; color: #9aa3b2; white-space: nowrap;
+}
+#tab-lead .le-chip.ok    { border-color: #1c5e50; color: #34d399; }
+#tab-lead .le-chip.warn  { border-color: #6b551b; color: #fbbf24; }
+#tab-lead .le-chip.bad   { border-color: #6b2222; color: #f87171; }
+
+#tab-lead .le-grid {
+  display: grid; gap: 10px; margin-bottom: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+#tab-lead .le-card {
+  border: 1px solid #232733; border-radius: 6px; background: #11151d; padding: 8px 10px;
+}
+#tab-lead .le-card h3 {
+  margin: 0 0 6px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  color: #7c869a; font-weight: 600;
+}
+#tab-lead .le-row {
+  display: flex; justify-content: space-between; gap: 10px; padding: 2px 0;
+  border-bottom: 1px solid #1a1f29;
+}
+#tab-lead .le-row:last-child { border-bottom: none; }
+#tab-lead .le-row .k { color: #8a93a5; }
+#tab-lead .le-row .v { color: #d7dbe3; text-align: right; font-variant-numeric: tabular-nums; }
+#tab-lead .le-row .v.up   { color: #34d399; }
+#tab-lead .le-row .v.down { color: #f87171; }
+#tab-lead .le-row .v.dim  { color: #6b7488; }
+
+/* The two pressure bars. Deliberately separate bars rather than one
+   two-sided meter: long and short are computed independently and both can
+   be high at once, which a single meter cannot show. */
+#tab-lead .le-meter { margin: 6px 0; }
+#tab-lead .le-meter .lbl {
+  display: flex; justify-content: space-between; font-size: 10px; color: #8a93a5;
+  margin-bottom: 3px;
+}
+#tab-lead .le-meter .track {
+  height: 10px; background: #1a1f29; border-radius: 5px; overflow: hidden;
+}
+#tab-lead .le-meter .fill { height: 100%; width: 0; transition: width .25s ease; }
+#tab-lead .le-meter.long  .fill { background: linear-gradient(90deg, #12614e, #34d399); }
+#tab-lead .le-meter.short .fill { background: linear-gradient(90deg, #6b2222, #f87171); }
+#tab-lead .le-meter.break .fill { background: linear-gradient(90deg, #4c3a86, #a78bfa); }
+
+#tab-lead .le-state {
+  display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight: 700;
+  letter-spacing: .06em; font-size: 13px; border: 1px solid #2c3140; color: #c7cbd3;
+}
+#tab-lead .le-state.idle   { color: #6b7488; }
+#tab-lead .le-state.watch  { color: #9aa3b2; border-color: #3a4152; }
+#tab-lead .le-state.long   { color: #34d399; border-color: #1c5e50; background: #0f2620; }
+#tab-lead .le-state.short  { color: #f87171; border-color: #6b2222; background: #260f0f; }
+#tab-lead .le-state.aplus  { color: #fde68a; border-color: #6b551b; background: #241d0c; }
+#tab-lead .le-state.rev    { color: #a78bfa; border-color: #4c3a86; background: #191430; }
+#tab-lead .le-state.fail   { color: #f87171; border-color: #6b2222; background: #1c0f0f; }
+
+#tab-lead .le-feature {
+  display: grid; grid-template-columns: 130px 1fr 42px; gap: 6px;
+  align-items: center; padding: 2px 0; font-size: 11px;
+}
+#tab-lead .le-feature .bar { height: 6px; background: #1a1f29; border-radius: 3px; }
+#tab-lead .le-feature .bar > i { display: block; height: 100%; border-radius: 3px; background: #7c8cf8; }
+#tab-lead .le-feature .num { text-align: right; color: #9aa3b2; font-variant-numeric: tabular-nums; }
+
+#tab-lead .le-note { color: #7c869a; font-size: 11px; line-height: 1.5; margin: 6px 0; }
+#tab-lead .le-off {
+  border: 1px solid #6b551b; background: #1d1809; color: #fde68a;
+  padding: 12px; border-radius: 6px; line-height: 1.6;
+}
+#tab-lead table.le-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+#tab-lead table.le-table th {
+  text-align: left; color: #7c869a; font-weight: 600; padding: 4px 6px;
+  border-bottom: 1px solid #232733; font-size: 10px; text-transform: uppercase;
+}
+#tab-lead table.le-table td { padding: 4px 6px; border-bottom: 1px solid #1a1f29; }
+#tab-lead table.le-table tr.me td { background: #151b26; }
+
+@media (max-width: 520px) {
+  #tab-lead .le-grid { grid-template-columns: 1fr; }
+  #tab-lead .le-feature { grid-template-columns: 110px 1fr 38px; }
+}
+
+
+/* ---- stability -------------------------------------------------------
+   The panel is built ONCE and only its values change afterwards, so these
+   rules exist to stop the remaining sources of visual movement. */
+
+/* Value cells reserve their width so a number gaining a digit does not
+   push its neighbours. */
+#tab-lead .le-row .v, .le-root .le-row .v {
+  min-width: 108px; font-variant-numeric: tabular-nums;
+}
+#tab-lead .le-row .k, .le-root .le-row .k { white-space: nowrap; }
+
+/* Colour transitions are eased rather than switched, so the deadband in
+   the script (which stops the flipping) is backed up by the paint not
+   snapping even when a genuine state change happens. */
+#tab-lead .le-row .v, .le-root .le-row .v { transition: color 180ms linear; }
+#tab-lead .le-meter .fill, .le-root .le-meter .fill {
+  transition: width 220ms cubic-bezier(.4,0,.2,1);
+}
+
+/* The four clocks, shown separately - see health.py for why one number
+   under two names was a defect. */
+.le-clocks { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+.le-clock {
+  border: 1px solid #232733; border-radius: 4px; padding: 3px 7px;
+  font-size: 10px; color: #9aa3b2; font-variant-numeric: tabular-nums;
+}
+.le-clock b { color: #d7dbe3; font-weight: 600; }
+.le-clock.warn { border-color: #6b551b; color: #fbbf24; }
+.le-clock.bad { border-color: #6b2222; color: #f87171; }
+
+/* Layer bars: five independent readings, each with its own confidence. */
+.le-layer { display: grid; grid-template-columns: 92px 1fr 54px 40px; gap: 6px;
+            align-items: center; padding: 3px 0; font-size: 11px; }
+.le-layer .name { color: #8a93a5; text-transform: uppercase; font-size: 10px;
+                  letter-spacing: .05em; }
+.le-layer .track { height: 8px; background: #1a1f29; border-radius: 4px; position: relative; }
+.le-layer .track > i { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+.le-layer .track > i.long  { left: 50%; background: #34d399; }
+.le-layer .track > i.short { right: 50%; background: #f87171; }
+.le-layer .track::after { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px;
+                          width: 1px; background: #2c3140; }
+.le-layer .val { text-align: right; font-variant-numeric: tabular-nums; color: #d7dbe3; }
+.le-layer .conf { text-align: right; font-size: 10px; color: #6b7488; }
+
+.le-conflict { font-size: 11px; padding: 4px 8px; border-radius: 4px; margin-top: 6px; }
+.le-conflict.low    { color: #6b7488; border: 1px solid #232733; }
+.le-conflict.medium { color: #fbbf24; border: 1px solid #6b551b; background: #1d1809; }
+.le-conflict.high   { color: #f87171; border: 1px solid #6b2222; background: #1c0f0f; }
+
+.le-badge-score { font-size: 10px; letter-spacing: .05em; color: #a78bfa;
+                  border: 1px solid #4c3a86; border-radius: 3px; padding: 1px 5px; }
+
+/* A symbol that opens its own workspace has to look like it does. */
+#tab-lead .le-open, .le-root .le-open {
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: #3a4152;
+}
+#tab-lead .le-open:hover { color: #7dd3fc; text-decoration-color: #7dd3fc; }
+
+.le-row .le-num { min-width: 12ch; }
+#tab-lead .le-price { min-width: 12ch; }
+.le-table { table-layout: fixed; width:100%; }

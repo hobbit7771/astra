@@ -1,0 +1,53 @@
+........................................................................ [ 25%]
+........................................................................ [ 51%]
+........................................................................ [ 76%]
+..................................................................       [100%]
+=============================== warnings summary ===============================
+../astra-test-env/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+../astra-test-env/lib/python3.12/site-packages/starlette/testclient.py:53
+  /workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/starlette/testclient.py:53: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+t3_engine/dashboard/server.py:1274
+  /workspace/scratch/79ffe4bf4acf/elliott-wave-analyzer/t3_engine/dashboard/server.py:1274: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+../astra-test-env/lib/python3.12/site-packages/fastapi/applications.py:4681
+../astra-test-env/lib/python3.12/site-packages/fastapi/applications.py:4681
+../astra-test-env/lib/python3.12/site-packages/fastapi/applications.py:4681
+  /workspace/scratch/79ffe4bf4acf/astra-test-env/lib/python3.12/site-packages/fastapi/applications.py:4681: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+t3_engine/dashboard/server.py:1292
+  /workspace/scratch/79ffe4bf4acf/elliott-wave-analyzer/t3_engine/dashboard/server.py:1292: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+t3_engine/dashboard/server.py:1302
+  /workspace/scratch/79ffe4bf4acf/elliott-wave-analyzer/t3_engine/dashboard/server.py:1302: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+282 passed, 8 warnings in 4.18s

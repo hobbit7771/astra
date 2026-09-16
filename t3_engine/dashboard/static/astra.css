@@ -1,0 +1,14 @@
+.astra-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:16px; border-bottom:1px solid #263142; }
+.astra-head strong { color:#7dd3fc; letter-spacing:.05em; font-size:20px; }
+.astra-head small { font-size:11px; color:#9ba6b8; font-weight:400; }
+.astra-main { padding:16px; max-width:1600px; margin:auto; }
+.field-row { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px; }
+select { color:inherit; background:#18212e; border:1px solid #38455a; padding:8px; border-radius:4px; }
+.paper-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:20px 0; }
+.paper-cards div { border:1px solid #28364a; padding:14px; border-radius:6px; }
+.paper-cards b { display:block; font-size:24px; font-variant-numeric:tabular-nums; }
+.paper-scroll { overflow-x:auto; }
+.paper-table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.paper-table th,.paper-table td { text-align:right; padding:10px; border-bottom:1px solid #253042; white-space:nowrap; }
+.paper-table th:first-child,.paper-table td:first-child { text-align:left; }
+.paper-note { color:#9ba6b8; max-width:1000px; }

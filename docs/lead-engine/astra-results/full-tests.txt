@@ -1,0 +1,5 @@
+........................................................................ [  8%]
+........................................................................ [ 16%]
+........................................................................ [ 25%]
+.......................................................................
+STOPPED BY AUTOMATIC APPROVAL REVIEW: legacy dashboard tests attempted an OpenRouter request. No full-suite pass is claimed. See legacy-regression-tests.txt and unit-tests.txt.
